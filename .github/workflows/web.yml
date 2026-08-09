@@ -1,0 +1,85 @@
+name: web
+
+on:
+  push:
+    branches: ["**"]
+
+concurrency:
+  group: web-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Melos installieren
+        run: dart pub get
+
+      - name: Bootstrap
+        run: dart run melos bootstrap
+
+      - name: Flavors aus tool/flavors.yaml ermitteln
+        id: flavors
+        run: |
+          list=$(grep -E '^  [a-z0-9_]+:$' tool/flavors.yaml | tr -d ' :' | paste -sd, -)
+          echo "list=$list" >> "$GITHUB_OUTPUT"
+          echo "Gefundene Flavors: $list"
+
+      - name: Alle Flavors bauen
+        run: |
+          mkdir -p build/web
+          IFS=',' read -ra F <<< "${{ steps.flavors.outputs.list }}"
+          for f in "${F[@]}"; do
+            echo "::group::build $f"
+            ( cd "apps/$f" && flutter build web --release \
+              --dart-define=FLAVOR="$f" \
+              --dart-define=STT_ENGINE=web \
+              --base-href="/$f/" \
+              --output="$GITHUB_WORKSPACE/build/web/$f" )
+            echo "::endgroup::"
+          done
+
+      - name: Übersichtsseite erzeugen
+        run: dart run tool/gen_web_index.dart
+
+      - name: Cloudflare-Zugang vorhanden?
+        id: cf
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -n "$CF_TOKEN" ] && [ -n "$CF_ACCOUNT" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "Cloudflare-Secrets fehlen — Deploy wird übersprungen, Build bleibt grün."
+          fi
+
+      - name: Deploy zu Cloudflare Pages
+        if: steps.cf.outputs.ready == 'true'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: >-
+            pages deploy build/web
+            --project-name=app-fabrik
+            --branch=${{ github.ref_name }}
+
+      - name: Web-Build als Artefakt ablegen
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-${{ github.ref_name }}
+          path: build/web
+          retention-days: 7

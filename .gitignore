@@ -1,0 +1,48 @@
+# Dart / Flutter
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+build/
+*.g.dart.lock
+.flutter-plugins
+.flutter-plugins-dependencies
+pubspec_overrides.yaml
+
+# Melos
+.melos_tool/
+
+# Von "melos bootstrap" erzeugte IntelliJ-Dateien — Werkzeugstand, kein Quelltext
+.idea/
+*.iml
+
+# Android
+apps/*/android/.gradle/
+apps/*/android/local.properties
+apps/*/android/key.properties
+apps/*/android/app/*.keystore
+apps/*/android/app/*.jks
+apps/*/android/app/google-services.json
+
+# iOS / macOS
+apps/*/ios/Pods/
+apps/*/ios/.symlinks/
+apps/*/ios/Flutter/Flutter.framework
+apps/*/ios/Flutter/Generated.xcconfig
+apps/*/ios/Runner/GoogleService-Info.plist
+**/*.mode1v3
+**/*.pbxuser
+**/xcuserdata/
+
+# Test-Ausgaben
+**/failures/
+coverage/
+integration_test/screenshots/
+
+# Sprachmodelle — niemals ins Repo, niemals ins App-Paket
+**/models/*.onnx
+**/models/*.tar.bz2
+
+# System
+.DS_Store
+*.log

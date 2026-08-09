@@ -1,0 +1,17 @@
+# Wurzel-Paket des Monorepos. Enthaelt keinen Quelltext.
+#
+# Es existiert ausschliesslich, weil Melos ab Version 3.0.0 eine lokale
+# Installation neben melos.yaml verlangt — ein global aktiviertes Melos
+# bricht sonst mit "no local installation of Melos" ab.
+#
+# Die Paketliste steht weiterhin in melos.yaml, nicht hier.
+name: app_fabrik
+description: Wurzel-Paket der App-Fabrik. Traegt nur die Melos-Installation.
+publish_to: none
+version: 0.1.0
+
+environment:
+  sdk: ">=3.5.0 <4.0.0"
+
+dev_dependencies:
+  melos: ^6.3.2

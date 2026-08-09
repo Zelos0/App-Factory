@@ -1,0 +1,84 @@
+name: testlab
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      flavor:
+        description: Welcher Flavor getestet wird
+        required: true
+        default: vox
+
+jobs:
+  robo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Firebase-Zugang vorhanden?
+        id: fb
+        env:
+          FB_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -n "$FB_ACCOUNT" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "FIREBASE_SERVICE_ACCOUNT fehlt — Test Lab wird übersprungen."
+            echo "Anleitung: TESTLEITER.md, Abschnitt 'Einmalige Einrichtung'."
+          fi
+
+      - uses: subosito/flutter-action@v2
+        if: steps.fb.outputs.ready == 'true'
+        with:
+          channel: stable
+          cache: true
+
+      - uses: actions/setup-java@v4
+        if: steps.fb.outputs.ready == 'true'
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Melos installieren
+        if: steps.fb.outputs.ready == 'true'
+        run: dart pub get
+
+      - name: Bootstrap
+        if: steps.fb.outputs.ready == 'true'
+        run: dart run melos bootstrap
+
+      - name: APK bauen
+        if: steps.fb.outputs.ready == 'true'
+        env:
+          FLAVOR: ${{ github.event.inputs.flavor || 'vox' }}
+        run: |
+          cd "apps/$FLAVOR"
+          flutter build apk --debug --flavor "$FLAVOR" --dart-define=FLAVOR="$FLAVOR"
+
+      - uses: google-github-actions/auth@v2
+        if: steps.fb.outputs.ready == 'true'
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+        if: steps.fb.outputs.ready == 'true'
+
+      - name: Robo-Test auf echter Hardware
+        if: steps.fb.outputs.ready == 'true'
+        env:
+          FLAVOR: ${{ github.event.inputs.flavor || 'vox' }}
+        run: |
+          gcloud firebase test android run \
+            --type robo \
+            --app "apps/$FLAVOR/build/app/outputs/flutter-apk/app-$FLAVOR-debug.apk" \
+            --device model=redfin,version=30,locale=de,orientation=portrait \
+            --timeout 5m \
+            --results-bucket "${{ secrets.FIREBASE_RESULTS_BUCKET }}" \
+            --results-dir "robo-$FLAVOR-${{ github.run_number }}"
+
+      - name: Hinweis, wenn übersprungen
+        if: steps.fb.outputs.ready != 'true'
+        run: echo "Test Lab übersprungen. Kein Fehler — Gratis-Kontingent nicht eingerichtet."

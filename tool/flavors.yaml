@@ -1,0 +1,7 @@
+# Muster: <flavor>: { label, core, applicationId }
+# core: capture | lens | both
+flavors:
+  vox:
+    label: Vox
+    core: capture
+    applicationId: de.zeta.vox

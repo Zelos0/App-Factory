@@ -1,0 +1,51 @@
+name: ci
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      # Melos ab 3.0.0 muss lokal neben melos.yaml installiert sein.
+      # Die Wurzel-pubspec.yaml traegt diese Installation.
+      - name: Melos installieren
+        run: dart pub get
+
+      - name: Bootstrap
+        run: dart run melos bootstrap
+
+      - name: Formatierung prüfen
+        run: dart run melos run format-check
+
+      - name: Statische Analyse
+        run: dart run melos run analyze
+
+      - name: Werbe-IDs prüfen
+        run: dart run melos run check-ad-ids
+
+      - name: Tests inklusive Golden
+        run: dart run melos run test
+
+      - name: Golden-Abweichungen als Artefakt ablegen
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: golden-failures
+          path: "**/test/**/failures/**"
+          if-no-files-found: ignore
+          retention-days: 14
