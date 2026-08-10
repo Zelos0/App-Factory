@@ -234,6 +234,12 @@ import 'package:drift/drift.dart';
 
 part 'database.g.dart';
 
+/// `@DataClassName` ist Pflicht, nicht Geschmack: drift leitet aus der Tabelle
+/// `Entries` sonst eine Datenklasse `Entry` ab und aus `Segments` eine Klasse
+/// `Segment` — beide Namen sind in `models.dart` bereits vergeben. Ohne die
+/// Umbenennung kollidieren erzeugter und handgeschriebener Code, sobald
+/// `shared_base.dart` beide exportiert.
+@DataClassName('EntryRow')
 class Entries extends Table {
   TextColumn get id => text()();
   TextColumn get type => text()();
@@ -251,11 +257,17 @@ class Entries extends Table {
   Set<Column<Object>> get primaryKey => <Column<Object>>{id};
 }
 
+@DataClassName('SegmentRow')
 class Segments extends Table {
   TextColumn get id => text()();
   TextColumn get entryId =>
       text().references(Entries, #id, onDelete: KeyAction.cascade)();
-  IntColumn get order => integer()();
+
+  /// `order` ist in SQL ein Schlüsselwort. Der Dart-Name bleibt `order`,
+  /// weil ARCHITEKTUR.md Abschnitt 3 ihn so festlegt; die Spalte heißt
+  /// deshalb ausdrücklich `sort_order`, damit kein Zitieren nötig ist.
+  IntColumn get order => integer().named('sort_order')();
+
   TextColumn get mediaPath => text().nullable()();
   TextColumn get transcript => text().nullable()();
   TextColumn get engine => text()();
@@ -278,7 +290,7 @@ class AppDatabase extends _$AppDatabase {
           await m.createAll();
           await customStatement(
             'CREATE INDEX idx_segments_entry_order '
-            'ON segments (entry_id, "order")',
+            'ON segments (entry_id, sort_order)',
           );
           await customStatement(
             'CREATE INDEX idx_entries_type_updated '
@@ -365,7 +377,20 @@ export 'connection/stub.dart'
 ```
 
 Für den Web-Build müssen `sqlite3.wasm` und `drift_worker.js` in `web/` jeder
-App liegen. `app-derive` legt sie an; der Bezugsbefehl steht dort.
+App liegen. Beide sind **Release-Artefakte, keine erzeugten Dateien** — der
+früher übliche Befehl `dart run drift_dev make-worker` existiert ab drift 2.20
+nicht mehr. Bezogen werden sie so:
+
+```bash
+curl -L -o apps/$FLAVOR/web/sqlite3.wasm \
+  https://github.com/simolus3/sqlite3.dart/releases/latest/download/sqlite3.wasm
+curl -L -o apps/$FLAVOR/web/drift_worker.js \
+  https://github.com/simolus3/drift/releases/latest/download/drift_worker.js
+```
+
+`app-derive` führt das je App aus. Fehlt eine der beiden Dateien, startet der
+Web-Build zwar, aber die Datenbank bleibt tot — das ist der Fall, den die
+Abbruchbedingung von Tag 2 in `WF-01-ERSTE-APP.md` meint.
 
 ### A.4 — Der Speicher als Schnittstelle
 
@@ -994,11 +1019,12 @@ class VaultExport {
         'exportiert': DateTime.now().toIso8601String(),
         'format': 'app-fabrik-fluchttuer/1',
         'eintraege': entries
-            .map((EntryWithSegments e) => <String, dynamic>{
-                  'entry': e.entry.toJson(),
-                  'segments':
-                      e.segments.map((Segment s) => s.toJson()).toList(),
-                })
+            .map(
+              (EntryWithSegments e) => <String, dynamic>{
+                'entry': e.entry.toJson(),
+                'segments': e.segments.map((Segment s) => s.toJson()).toList(),
+              },
+            )
             .toList(),
       });
 
