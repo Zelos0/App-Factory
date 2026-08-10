@@ -1560,8 +1560,17 @@ void main() {
         ),
       ),
     ));
-    final Size size = t.getSize(find.byType(FilledButton));
-    expect(size.height, greaterThanOrEqualTo(RecordButton.minHeight));
+    // byType prueft den exakten Laufzeittyp. FilledButton.icon erzeugt die
+    // private Unterklasse _FilledButtonWithIcon, die byType(FilledButton)
+    // deshalb NICHT findet — der Test schluege mit "Bad state: No element"
+    // fehl, ohne dass am Knopf etwas falsch waere.
+    final Finder button =
+        find.byWidgetPredicate((Widget w) => w is FilledButton);
+    expect(button, findsOneWidget);
+    expect(
+      t.getSize(button).height,
+      greaterThanOrEqualTo(RecordButton.minHeight),
+    );
   });
 
   testWidgets('Unterer Abstand zur Bannerfläche beträgt mindestens 16 dp',
@@ -1720,6 +1729,8 @@ Datei: `packages/capture_core/lib/src/stt/platform_stt_engine.dart`
 ```dart
 import 'dart:async';
 
+import 'package:speech_to_text/speech_recognition_error.dart';
+import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 import 'stt_engine.dart';
@@ -1744,8 +1755,10 @@ class PlatformSttEngine implements SttEngine {
   bool get isAvailable => _initialized && _speech.isAvailable;
 
   Future<bool> init() async {
+    // Typisierte Rueckrufe, nicht dynamic: avoid_dynamic_calls ist in
+    // analysis_options.yaml aktiv und bricht sonst den Build.
     _initialized = await _speech.initialize(
-      onError: (dynamic _) {},
+      onError: (SpeechRecognitionError _) {},
       onStatus: (String _) {},
     );
     return _initialized;
@@ -1754,19 +1767,23 @@ class PlatformSttEngine implements SttEngine {
   /// Live-Erkennung während der Aufnahme.
   Stream<String> listen({String lang = 'de_DE'}) {
     final StreamController<String> out = StreamController<String>();
-    _speech.listen(
-      localeId: lang,
-      listenOptions: stt.SpeechListenOptions(
-        partialResults: true,
-        cancelOnError: false,
+    unawaited(
+      _speech.listen(
+        // Die Sprache gehoert seit speech_to_text 7 in SpeechListenOptions;
+        // der gleichnamige Parameter von listen() ist abgekuendigt und
+        // scheitert an --fatal-infos.
+        listenOptions: stt.SpeechListenOptions(
+          localeId: lang,
+          partialResults: true,
+          cancelOnError: false,
+        ),
+        onResult: (SpeechRecognitionResult result) {
+          out.add(result.recognizedWords);
+          if (result.finalResult) {
+            unawaited(out.close());
+          }
+        },
       ),
-      onResult: (dynamic result) {
-        final String words = result.recognizedWords as String;
-        out.add(words);
-        if (result.finalResult as bool) {
-          out.close();
-        }
-      },
     );
     return out.stream;
   }

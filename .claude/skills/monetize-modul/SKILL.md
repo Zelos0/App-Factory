@@ -361,7 +361,7 @@ class AlwaysProPurchases implements Purchases {
   final StreamController<PurchaseState> _controller =
       StreamController<PurchaseState>.broadcast();
 
-  PurchaseState _current = const PurchaseState(tier: ProductTier.pro);
+  final PurchaseState _current = const PurchaseState(tier: ProductTier.pro);
 
   @override
   String get id => 'always-pro';
@@ -423,7 +423,7 @@ class PlayBillingPurchases implements Purchases {
   final StreamController<PurchaseState> _controller =
       StreamController<PurchaseState>.broadcast();
 
-  PurchaseState _current = const PurchaseState(tier: ProductTier.free);
+  final PurchaseState _current = const PurchaseState(tier: ProductTier.free);
 
   @override
   String get id => 'play-billing';
@@ -589,6 +589,8 @@ Der Einstellungs-Eintrag, den jede App einbindet:
 Datei: `packages/shared_base/lib/src/monetize/consent_tile.dart`
 
 ```dart
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../config/registry.dart';
@@ -614,7 +616,9 @@ class ConsentTile extends StatelessWidget {
           leading: const Icon(Icons.privacy_tip_outlined),
           title: const Text('Werbeeinstellungen ändern'),
           subtitle: Text(_label(status)),
-          onTap: () => gate.showForm(),
+          // unawaited, weil onTap ein VoidCallback ist und
+          // unawaited_futures sonst anschlaegt.
+          onTap: () => unawaited(gate.showForm()),
         );
       },
     );
@@ -641,7 +645,6 @@ class ConsentTile extends StatelessWidget {
 Datei: `packages/shared_base/lib/src/monetize/monetize_registration.dart`
 
 ```dart
-import '../config/brand.dart';
 import '../config/features.dart';
 import '../config/registry.dart';
 import 'ad_surface.dart';
@@ -653,6 +656,11 @@ import 'purchases.dart';
 /// Einzige Stelle, an der Features.adsEnabled und Features.billingEnabled
 /// gelesen werden. Apps sehen ausschließlich AdSurface, Purchases,
 /// ConsentGate — nie einen Schalter.
+///
+/// Hinweis für Welle 1: Der Produktbezeichner lautet dort
+/// `'$kApplicationId.pro'`. `brand.dart` wird deshalb erst mit dem
+/// Einkommentieren importiert — vorher wäre der Import unbenutzt und
+/// scheiterte an `--fatal-infos`.
 Future<void> registerMonetize() async {
   // --- Werbung ---
   if (Features.adsEnabled) {
@@ -738,13 +746,18 @@ void _checkFeatureSwitches(List<String> offenders) {
       'packages/shared_base/lib/src/monetize/monetize_registration.dart');
   final String regSrc = reg.existsSync() ? reg.readAsStringSync() : '';
 
-  if (isTrue('adsEnabled') && !regSrc.contains('AdMobAdSurface(')) {
+  // Der Einbau zaehlt nur, wenn er WIRKLICH gebunden ist. In der
+  // stillgelegten Fassung steht die Bindung auskommentiert im Quelltext —
+  // ein blosses contains() wuerde sie faelschlich als Einbau werten.
+  bool bound(String call) => _withoutComments(regSrc).contains(call);
+
+  if (isTrue('adsEnabled') && !bound('AdMobAdSurface(')) {
     offenders.add(
       'features.dart -> adsEnabled = true, aber AdMobAdSurface ist in '
       'monetize_registration.dart nicht gebunden.',
     );
   }
-  if (isTrue('billingEnabled') && !regSrc.contains('PlayBillingPurchases(')) {
+  if (isTrue('billingEnabled') && !bound('PlayBillingPurchases(')) {
     offenders.add(
       'features.dart -> billingEnabled = true, aber PlayBillingPurchases ist '
       'in monetize_registration.dart nicht gebunden.',
@@ -784,7 +797,11 @@ void _checkFeatureLeaks(List<String> offenders) {
         allowed.contains(path)) {
       continue;
     }
-    final String src = e.readAsStringSync();
+    // Ohne Kommentare pruefen: Dateien wie admob_ad_surface.dart und
+    // play_billing_purchases.dart NENNEN die Schalter in ihrer
+    // Einschalt-Anleitung, ohne sie zu lesen. Ein Treffer im Kommentar ist
+    // ein Fehlalarm und haelt die CI dauerhaft rot.
+    final String src = _withoutComments(e.readAsStringSync());
     if (RegExp(r'\bFeatures\.\w+').hasMatch(src)) {
       offenders.add(
         '$path liest Features direkt. Schalter gehören ausschließlich in die '
@@ -793,6 +810,17 @@ void _checkFeatureLeaks(List<String> offenders) {
     }
   }
 }
+
+/// Entfernt Zeilen- und Blockkommentare. Absichtlich einfach: Es geht darum,
+/// Kommentare von Quelltext zu trennen, nicht darum, Dart zu parsen.
+String _withoutComments(String source) => source
+    .replaceAll(RegExp(r'/\*.*?\*/', dotAll: true), '')
+    .split('\n')
+    .map((String line) {
+      final int i = line.indexOf('//');
+      return i == -1 ? line : line.substring(0, i);
+    })
+    .join('\n');
 ```
 
 Beide Funktionen werden in `main()` aufgerufen, bevor die Erfolgsmeldung

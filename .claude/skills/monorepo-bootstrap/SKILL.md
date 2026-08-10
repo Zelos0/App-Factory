@@ -263,11 +263,18 @@ dependencies:
   audioplayers: ^6.1.0
   flutter:
     sdk: flutter
+  # path, path_provider und uuid werden ab capture-core-build Stufe B von
+  # platform_recorder.dart direkt importiert. Ein Paket deklariert, was es
+  # selbst importiert — transitiv ueber shared_base zu gehen bricht,
+  # sobald shared_base eine dieser Abhaengigkeiten fallen laesst.
+  path: ^1.9.0
+  path_provider: ^2.1.4
   permission_handler: ^11.3.1
   record: ^5.1.2
   shared_base:
     path: ../shared_base
   speech_to_text: ^7.0.0
+  uuid: ^4.5.1
 
 dev_dependencies:
   flutter_lints: ^4.0.0
