@@ -180,11 +180,58 @@ void main() {
       expect(r.keywords.first.toLowerCase(), 'alpha');
     });
 
-    test('VOX erkennt bewusst KEINE Beträge — das ist KASSAs Aufgabe', () {
+    test('kein Händler — das bleibt KASSAs Aufgabe', () {
       final VoxResult r = interpreter.parse('zweiundzwanzig fünfzig bei Rewe');
-      expect(r.toJson().containsKey('amount'), isFalse);
       expect(r.toJson().containsKey('merchant'), isFalse);
       expect(r.raw, 'zweiundzwanzig fünfzig bei Rewe');
+    });
+  });
+
+  group('Beiwerk — Betrag und Zeitpunkt', () {
+    test('Betrag nur mit Währungswort', () {
+      expect(interpreter.parse('acht euro neunzig fürs Taxi').amount, 8.90);
+      expect(interpreter.parse('das kostet 22,50 im Monat').amount, 22.50);
+      expect(interpreter.parse('neunundneunzig cent').amount, 0.99);
+    });
+
+    test('ohne Währungswort wird nicht geraten', () {
+      // In einer freien Notiz ist "vierzehn siebzig" öfter eine Uhrzeit
+      // oder eine Seitenzahl als ein Preis. KASSA darf raten, VOX nicht.
+      expect(interpreter.parse('vierzehn siebzig').amount, isNull);
+      expect(
+        interpreter.parse('zweiundzwanzig fünfzig bei Rewe').amount,
+        isNull,
+        reason: 'Ohne Währungswort bleibt es Text',
+      );
+      expect(interpreter.parse('§§ 1,2,3 — *** ###').amount, isNull);
+      expect(interpreter.parse('Seite 250 lesen').amount, isNull);
+    });
+
+    test('fehlender Betrag senkt den Vertrauenswert nicht', () {
+      final VoxResult ohne =
+          interpreter.parse('Der Vertrag muss geprüft werden. Der Vertrag.');
+      expect(ohne.amount, isNull);
+      expect(ohne.confidence, 1.0, reason: 'Beiwerk, kein Pflichtfeld');
+    });
+
+    test('Zeitpunkt nur, wenn eine Uhr gereicht wird', () {
+      const String text = 'gestern beim Kunden gewesen';
+      expect(interpreter.parse(text).occurredAt, isNull,
+          reason: 'ohne now bleibt der Interpreter deterministisch');
+      expect(
+        interpreter.parse(text, now: DateTime(2026, 8, 11)).occurredAt,
+        DateTime(2026, 8, 10),
+      );
+    });
+
+    test('Beiwerk überlebt die JSON-Runde', () {
+      final VoxResult before = interpreter.parse(
+        'acht euro neunzig gestern bezahlt',
+        now: DateTime(2026, 8, 11),
+      );
+      final VoxResult after = VoxResult.fromJson(before.toJson());
+      expect(after.amount, before.amount);
+      expect(after.occurredAt, before.occurredAt);
     });
   });
 }

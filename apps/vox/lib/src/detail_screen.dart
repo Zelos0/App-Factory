@@ -92,7 +92,7 @@ class _DetailScreenState extends State<DetailScreen> {
     if (full != null) {
       await widget.store.updateData(
         widget.entryId,
-        _interpreter.parse(full.fullText).toJson(),
+        _interpreter.parse(full.fullText, now: DateTime.now()).toJson(),
       );
     }
     await _load();
@@ -189,6 +189,28 @@ class _DetailScreenState extends State<DetailScreen> {
               ],
             ),
           const SizedBox(height: Tokens.s),
+          // Beiwerk: nur zeigen, was tatsächlich gesprochen wurde.
+          // Eine leere Zeile „Betrag: —" wäre schlechter als keine Zeile.
+          if (r.amount != null || r.occurredAt != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: Tokens.s),
+              child: Wrap(
+                spacing: Tokens.m,
+                runSpacing: Tokens.xs,
+                children: <Widget>[
+                  if (r.amount != null)
+                    Text(
+                      '${r.amount!.toStringAsFixed(2)} €',
+                      style: theme.textTheme.titleMedium,
+                    ),
+                  if (r.occurredAt != null)
+                    Text(
+                      _date(r.occurredAt!),
+                      style: theme.textTheme.titleMedium,
+                    ),
+                ],
+              ),
+            ),
           Text(
             '${r.wordCount} Wörter · ${r.charCount} Zeichen',
             style: theme.textTheme.labelMedium

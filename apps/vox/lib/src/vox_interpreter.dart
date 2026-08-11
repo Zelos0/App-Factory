@@ -1,9 +1,17 @@
+import 'package:shared_base/shared_base.dart';
+
 /// Ordnet den Volltext eines Eintrags — er zerlegt ihn nicht.
 ///
 /// Der Steckbrief ist an dieser Stelle eindeutig: „Kein Interpreter — Text
-/// bleibt Text." VOX erkennt deshalb weder Beträge noch Händler noch Termine.
-/// Was es tut: einen Titel aus dem ersten Satz bilden und Schlagworte über
-/// Häufigkeit finden. Alles Deutende gehört in KASSA, RITUS, ONIRA, ANAMNESE.
+/// bleibt Text." Der Text wird deshalb nie ersetzt, nie umgeschrieben, nie
+/// weggeworfen. Was der Interpreter tut, kommt oben drauf: einen Titel aus
+/// dem ersten Satz bilden und Schlagworte über Häufigkeit finden.
+///
+/// Zwei Felder sind **Beiwerk**, kein Kern: ein Betrag und ein Zeitpunkt,
+/// beide nur wenn eindeutig gesprochen, beide über die geteilten Parser aus
+/// `shared_base/src/text/`. Sie senken den Vertrauenswert nicht, wenn sie
+/// fehlen — sie sind da, wenn sie da sind. Wer Beträge systematisch erfassen
+/// will, nimmt KASSA; wer Mengen und Zeiten braucht, RITUS.
 ///
 /// Reine Funktion: kein Zustand, kein Speicher, keine Plattform. Deshalb
 /// vollständig im Unit-Test prüfbar — und deshalb testbar, bevor irgendeine
@@ -36,7 +44,11 @@ class VoxInterpreter {
 
   static const int keywordMaxCount = 5;
 
-  VoxResult parse(String text) {
+  /// [now] wird nur gebraucht, um relative Zeitangaben aufzulösen
+  /// („gestern", „letzten Freitag"). Ohne [now] bleibt `occurredAt` null —
+  /// dann ist der Interpreter vollständig deterministisch und im Test
+  /// ohne Uhr prüfbar. Der Aufrufer entscheidet, ob er die Uhr reicht.
+  VoxResult parse(String text, {DateTime? now}) {
     final String trimmed = text.trim();
     if (trimmed.isEmpty) {
       return VoxResult(raw: text, confidence: 0);
@@ -51,9 +63,37 @@ class VoxInterpreter {
       keywords: keywords,
       wordCount: _countWords(trimmed),
       charCount: trimmed.length,
+      amount: _unambiguousAmount(trimmed),
+      occurredAt: now == null ? null : SpokenDates.parse(trimmed, now: now),
       confidence: _confidence(title: title, keywords: keywords),
       raw: text,
     );
+  }
+
+  // --- Beiwerk: Betrag und Zeitpunkt -------------------------------------
+
+  /// Ein Betrag, aber nur wenn er **eindeutig** ist.
+  ///
+  /// VOX ist eine Notiz-App, keine Haushaltsführung. Hier gilt deshalb eine
+  /// strengere Regel als in KASSA: Es braucht ein Währungswort („euro",
+  /// „€", „cent") oder eine Zahl mit genau zwei Nachkommastellen. Ein
+  /// gesprochenes „vierzehn siebzig" ohne Währungswort bleibt liegen — in
+  /// einer freien Notiz ist das öfter eine Uhrzeit oder eine Seitenzahl als
+  /// ein Preis. In KASSA rechtfertigt der Zusammenhang die Vermutung, hier
+  /// nicht.
+  ///
+  /// Der Betrag senkt `confidence` nicht, wenn er fehlt. Er ist Beiwerk:
+  /// da, wenn er da ist, und sonst kein Mangel.
+  static double? _unambiguousAmount(String text) {
+    final String s = text.toLowerCase();
+    final bool hasCurrencyWord =
+        RegExp(r'(^|\s)(euro|euros|cent|cents)(\s|$)|€').hasMatch(s);
+    final bool hasTwoDecimals = RegExp(r'\d+[,.]\d{2}(\s|$)').hasMatch(s);
+
+    if (!hasCurrencyWord && !hasTwoDecimals) {
+      return null;
+    }
+    return SpokenNumbers.parseAmount(s);
   }
 
   // --- Titel ---------------------------------------------------------------
@@ -360,6 +400,8 @@ class VoxResult {
     this.keywords = const <String>[],
     this.wordCount = 0,
     this.charCount = 0,
+    this.amount,
+    this.occurredAt,
   });
 
   /// Erster Satz, gekürzt. Null, wenn nichts übrig blieb.
@@ -370,6 +412,14 @@ class VoxResult {
 
   final int wordCount;
   final int charCount;
+
+  /// Betrag in Euro, wenn eindeutig gesprochen. Beiwerk — VOX ordnet
+  /// Text, es führt kein Haushaltsbuch. Dafür gibt es KASSA.
+  final double? amount;
+
+  /// Zeitpunkt, von dem die Rede war. Null, wenn nichts gesagt wurde
+  /// oder wenn beim Auswerten keine Uhr gereicht wurde.
+  final DateTime? occurredAt;
 
   /// 0.0–1.0. Unter 0.5 zeigt die Oberfläche den Rohtext zur Korrektur an,
   /// statt ein halbes Ergebnis als sicher darzustellen.
@@ -385,6 +435,8 @@ class VoxResult {
         'keywords': keywords,
         'wordCount': wordCount,
         'charCount': charCount,
+        'amount': amount,
+        'occurredAt': occurredAt?.toIso8601String(),
         'confidence': confidence,
         'raw': raw,
       };
@@ -396,6 +448,10 @@ class VoxResult {
             .toList(growable: false),
         wordCount: (json['wordCount'] as num?)?.toInt() ?? 0,
         charCount: (json['charCount'] as num?)?.toInt() ?? 0,
+        amount: (json['amount'] as num?)?.toDouble(),
+        occurredAt: json['occurredAt'] == null
+            ? null
+            : DateTime.tryParse(json['occurredAt']! as String),
         confidence: (json['confidence'] as num?)?.toDouble() ?? 0,
         raw: json['raw'] as String? ?? '',
       );

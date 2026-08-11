@@ -33,6 +33,8 @@ zerlegen: Titel und Schlagworte, sonst nichts.
 | `keywords` | `List<String>` | nein | Häufigkeitsanalyse über den Volltext. Wörter ab 4 Zeichen, ohne Stoppwörter, Zählung auf kleingeschriebener Form. Aufgenommen wird, was **mindestens zweimal** vorkommt; höchstens fünf, absteigend nach Anzahl, bei Gleichstand alphabetisch (damit das Ergebnis reproduzierbar bleibt). Ausgabe in der Schreibweise des ersten Vorkommens. | alle sammeln |
 | `wordCount` | `int` | ja | Anzahl der durch Leerraum getrennten Wortmarken im Volltext. | — |
 | `charCount` | `int` | ja | Zeichenanzahl des Volltextes, ungetrimmt gemessen nach `trim()`. | — |
+| `amount` | `double?` | nein — **Beiwerk** | Nur wenn **eindeutig**: es braucht ein Währungswort (`euro`, `€`, `cent`) oder eine Zahl mit genau zwei Nachkommastellen. Dann übernimmt `SpokenNumbers.parseAmount` aus `shared_base`. Ohne Währungswort wird nicht geraten — „vierzehn siebzig" ist in einer freien Notiz öfter eine Uhrzeit als ein Preis. | erster Treffer |
+| `occurredAt` | `DateTime?` | nein — **Beiwerk** | `SpokenDates.parse` aus `shared_base`, aber nur wenn dem Interpreter eine Uhr gereicht wird (`parse(text, now: …)`). Ohne `now` bleibt das Feld leer — dann ist der Interpreter vollständig deterministisch und ohne Uhr testbar. | letzter Treffer |
 
 **Vertrauenswert.** Zwei Anteile, je 0,5:
 
@@ -44,6 +46,17 @@ keywords.isNotEmpty                 -> +0.5
 Ein Text ohne wiederkehrendes Wort ist kein Fehler, sondern ein kurzer Text.
 Deshalb liegt `confidence` dort bei 0,5 und nicht bei 0. Erst der leere Text
 ergibt 0.
+
+**`amount` und `occurredAt` zählen ausdrücklich nicht mit.** Sie sind Beiwerk:
+da, wenn sie da sind, und sonst kein Mangel. Eine Notiz ohne Betrag ist eine
+Notiz, keine halbe Ausgabe. Wer Beträge systematisch erfassen will, nimmt
+KASSA — dort ist das Pflichtfeld, hier ist es ein Fund am Wegesrand.
+
+**Warum die Felder trotzdem existieren.** Der Steckbrief sagt „Text bleibt
+Text", und das gilt: Der Text wird nie ersetzt, nie umgeschrieben, nie
+weggeworfen. Das Beiwerk kommt oben drauf und kostet fast nichts, weil die
+Parser ohnehin im Kern liegen. Es beweist zugleich, dass die Fabrik trägt —
+derselbe Parser bedient später KASSA, RITUS, FAHRTLOG, WERKBUCH und ANAMNESE.
 
 **Bei Nichterkennung.** `raw` trägt in jedem Fall den vollständigen Text. Ein
 Feld bleibt eher `null`, als dass es geraten wird — VOX zeigt Rohtext, nicht
@@ -61,7 +74,9 @@ Felderblock aus und zeigt nur das Transkript.
   "title": null,
   "keywords": [],
   "wordCount": 0,
-  "charCount": 0
+  "charCount": 0,
+  "amount": null,
+  "occurredAt": null
 }
 ```
 
@@ -155,9 +170,13 @@ Kontoabfrage. Transkripte werden in 1,6-fachem Zeilenabstand gesetzt.
 ## 9 — Abgrenzung
 
 ```
-Was diese App NICHT tut:  Sie erkennt keine Beträge, keine Händler, keine
-                          Termine, keine Symbole, keine Mengen. Sie ordnet
-                          Text, sie deutet ihn nicht.
+Was diese App NICHT tut:  Sie erkennt keine Händler, keine Symbole, keine
+                          Mengen, keine Körperregionen, keine Kategorien.
+                          Betrag und Zeitpunkt nimmt sie mit, wenn sie
+                          eindeutig gesprochen sind — sie fragt aber nie
+                          danach, rechnet nichts zusammen und baut keine
+                          Auswertung darauf. Sie ordnet Text, sie deutet
+                          ihn nicht.
 Wer das stattdessen tut:  KASSA (Beträge, Händler) · RITUS (Mengen, Zeiten)
                           ONIRA (Symbole) · ANAMNESE (Körper, Intensität)
 Was in den Kern gehört:   ERLEDIGT — deutsche Zahlwörter und Zeitangaben

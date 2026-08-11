@@ -104,7 +104,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     await widget.store.updateData(
       entryId,
-      _interpreter.parse(full.fullText).toJson(),
+      _interpreter.parse(full.fullText, now: DateTime.now()).toJson(),
     );
   }
 
