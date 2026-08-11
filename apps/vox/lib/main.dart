@@ -1,63 +1,40 @@
+import 'package:capture_core/capture_core.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_base/shared_base.dart';
 
-/// Gerüst. Beweist an Tag 1, dass die Kette Push -> Build -> Deploy -> iPhone
-/// steht. `app-derive` ersetzt Startbildschirm, Theme und Interpreter.
+import 'src/home_screen.dart';
+import 'src/vox_theme.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Bindet AdSurface, Purchases und ConsentGate. Muss vor runApp laufen —
-  // AdSafeArea liest die Bindung im ersten build().
+
+  // Reihenfolge: erst alle Schnittstellen binden, dann Oberfläche starten.
+  // Keine dieser Zeilen liest einen Schalter — das tun ausschließlich die
+  // register*-Funktionen selbst. ARCHITEKTUR.md Abschnitt 5.
+  registerFileVault();
+  await registerSttEngine();
   await registerMonetize();
-  runApp(const VoxApp());
+
+  final AppDatabase db = AppDatabase(openConnection(kFlavor));
+  final EntryStore store = EntryStore(db, type: kFlavor);
+
+  runApp(VoxApp(store: store));
 }
 
 class VoxApp extends StatelessWidget {
-  const VoxApp({super.key});
+  const VoxApp({required this.store, super.key});
+
+  final EntryStore store;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      // Liest den Flavor aus brand.dart — beweist an Tag 1 zugleich, dass
-      // --dart-define=FLAVOR durch den ganzen Build durchkommt.
-      title: kFlavor,
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(useMaterial3: true, brightness: Brightness.light),
-      darkTheme: ThemeData(useMaterial3: true, brightness: Brightness.dark),
+      title: 'Vox',
+      theme: VoxTheme.light(),
+      darkTheme: VoxTheme.dark(),
       themeMode: ThemeMode.system,
-      home: const ScaffoldShell(),
-    );
-  }
-}
-
-class ScaffoldShell extends StatelessWidget {
-  const ScaffoldShell({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      // const, weil kFlavor eine Konstante ist. Ohne const meldet
-      // prefer_const_constructors einen Hinweis, und --fatal-infos in
-      // `melos run analyze` macht daraus einen Baustopp.
-      appBar: AppBar(title: const Text(kFlavor)),
-      // AdSafeArea hat an Tag 3 den festen SizedBox(height: 64) abgeloest.
-      // Gleiche Hoehe, gleicher Abstand — das Layout aendert sich nicht.
-      body: AdSafeArea(
-        // Kein unterer Innenabstand — den liefert AdSafeArea. Waere er hier
-        // noch einmal gesetzt, staenden 32 dp statt der geforderten 16.
-        bottomAction: Padding(
-          padding: const EdgeInsets.fromLTRB(Tokens.m, Tokens.s, Tokens.m, 0),
-          child: SizedBox(
-            height: Tokens.primaryActionHeight,
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: null,
-              icon: const Icon(Icons.mic_rounded),
-              label: const Text('Aufnehmen'),
-            ),
-          ),
-        ),
-        child: const Center(child: Text('Noch nichts aufgenommen.')),
-      ),
+      debugShowCheckedModeBanner: false,
+      home: HomeScreen(store: store),
     );
   }
 }
