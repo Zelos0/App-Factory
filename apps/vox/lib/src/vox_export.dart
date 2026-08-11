@@ -126,6 +126,9 @@ class VoxExport {
 
   /// Empfänger: ein Mensch — hier der Nutzer selbst, später.
   ///
+  /// Kostenlos wie jeder Export bei VOX — bezahlt wird für Tempo und
+  /// Präzision, nie dafür, die eigenen Daten wieder herauszubekommen.
+  ///
   /// Kein Amt, kein Briefkopf, keine Unterschriftszeile. Protokoll-Optik:
   /// Datum groß, die Segmentkette chronologisch mit Uhrzeit, Transkript in
   /// Lesetypografie. Im Fuß stehen die häufigsten Schlagworte — damit der

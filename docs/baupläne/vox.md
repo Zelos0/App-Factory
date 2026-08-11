@@ -108,7 +108,7 @@ als Nebenform — er zeigt Gewohnheit, nicht Inhalt.
 |---|---|---|
 | Nutzer, später | Markdown + YAML | Frontmatter: `id`, `typ`, `erstellt`, `titel`, `schlagworte`, `woerter` · Verweise: jedes Schlagwort als `[[Schlagwort]]` |
 | KI-Modell | Kontextbündel | Schema-Kopf: `title`, `keywords`, `wordCount`, `segments` · Auftrag: „Fasse die Notizen thematisch zusammen und nenne offene Punkte, die noch nicht zu Ende gedacht sind." |
-| Mensch mit Autorität | PDF | Empfänger: **der Nutzer selbst, später** — VOX ist eine private Notiz-App, es gibt keine Behörde am anderen Ende. Protokoll-Optik: Datum groß, Segmentkette chronologisch mit Uhrzeit je Segment, Transkript in Lesetypografie, häufigste Schlagworte im Fuß. Kein Briefkopf, keine Unterschriftszeile. `PdfRecipient(name: 'Eigenes Archiv', columns: [], showSegmentTimes: true)`. **Gehört zur Pro-Stufe** — aufbereitete Formate dürfen kosten, die Fluchttür nie. |
+| Mensch mit Autorität | PDF | Empfänger: **der Nutzer selbst, später** — VOX ist eine private Notiz-App, es gibt keine Behörde am anderen Ende. Protokoll-Optik: Datum groß, Segmentkette chronologisch mit Uhrzeit je Segment, Transkript in Lesetypografie, häufigste Schlagworte im Fuß. Kein Briefkopf, keine Unterschriftszeile. `PdfRecipient(name: 'Eigenes Archiv', columns: [], showSegmentTimes: true)`. Bleibt **kostenlos** — der Export ist bei VOX kein Luxus, sondern das Versprechen „kein Lock-in". |
 | Andere Software | TXT und JSON | TXT: reiner Volltext, ein Eintrag je Datei. JSON: Zeitstempel je Segment — Spalten `id`, `erstellt`, `titel`, `woerter`, `schlagworte`, `text` |
 | **Fluchttür** | JSON + ZIP | vollständig, kostenlos, in den Einstellungen |
 
@@ -189,15 +189,19 @@ oder ersetzt.
 
       | Stufe | Umfang |
       |---|---|
-      | Gratis | Aufnehmen · Transkribieren · Segmente erweitern, verschieben, löschen · Suche · Ordner und Schlagworte · Export als Markdown, TXT und JSON · **Fluchttür** · Startbildschirm-Widget · Schnelleinstellungen-Kachel · automatische Stille-Erkennung |
-      | Pro | **Präzision prüfen** (beide Engines im Vergleich) · **PDF-Export** · **Abspielgeschwindigkeit** außer 1,0× |
+      | Gratis | Aufnehmen · Transkribieren · Segmente erweitern, verschieben, löschen, neu transkribieren · Suche · Ordner und Schlagworte · **alle vier Exporte**, PDF eingeschlossen · **Fluchttür** |
+      | Pro | **Präzision prüfen** (beide Engines im Vergleich) · **Abspielgeschwindigkeit** außer 1,0× · **Startbildschirm-Widget** · **Schnelleinstellungen-Kachel** · **automatische Stille-Erkennung** |
 
-      Drei Dinge kosten, alles andere nicht. Das deckt sich mit
-      `ARCHITEKTUR.md` Abschnitt 7: aufbereitete Formate dürfen zur
-      Kaufversion gehören, die Rohdaten nie — Markdown, TXT und JSON sind
-      Rohdaten in lesbarer Form, das PDF ist Aufbereitung.
-      Bezahlt wird für Qualität, nie für Zugang. `monetize-modul` darf die
-      Kaufpunkte nach dieser Aufteilung setzen.
+      Die Trennlinie liegt zwischen *Funktion* und *Komfort*, nicht zwischen
+      *wenig* und *viel*. Alles, was eine Notiz erzeugt, findet oder wieder
+      hinausträgt, ist kostenlos — der Export eingeschlossen, weil „kein
+      Lock-in" sonst nur ein Satz im Store-Text wäre. Bezahlt wird für
+      Tempo und Präzision.
+
+      Das Kaufargument lautet damit nicht „schalt die App frei", sondern
+      „nimm die Präzisions-Engine dazu". Das ist die leichtere Entscheidung
+      und trägt den späteren Sprung von 2,49 € auf 4,99 €.
+      `monetize-modul` darf die Kaufpunkte nach dieser Aufteilung setzen.
 
 ## 11 — Vollständigkeitsprüfung
 
