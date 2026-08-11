@@ -45,6 +45,18 @@ an Fähigkeiten, die es an Tag 4 noch nicht gibt:
 | Startbildschirm-Widget, Schnelleinstellungen-Kachel | Plattformkanäle, frühestens mit einem Android-Gerät |
 | Automatische Stille-Erkennung | Amplitudenstrom steht; Schwelle und Pause fehlen |
 
+## Im selben Zug in den Kern gewandert
+
+- [x] **`SpokenNumbers` und `SpokenDates`** liegen jetzt in
+      `packages/shared_base/lib/src/text/`, mit eigenen Tests. Deutsche
+      Zahlwörter („zweiundzwanzig fünfzig" → 22,50), Euro-/Cent-Marker,
+      Hunderter und Tausender, relative Zeitangaben („gestern", „letzten
+      Freitag", „nächsten Montag") und explizite Daten.
+      **VOX benutzt beides nicht** — dort bleibt Text Text. Sie stehen im
+      Kern, weil KASSA, RITUS, FAHRTLOG, WERKBUCH und ANAMNESE sie sonst
+      je einzeln nachbauen würden. `app-derive` weist ab sofort darauf hin,
+      dass sein Betrags-Beispiel Vorlage ist und nicht Kopiervorlage.
+
 ## Nicht behoben, weil hier nicht behebbar
 
 - [ ] **`melos run analyze`, `melos run test` und `dart format` liefen für

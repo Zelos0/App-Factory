@@ -7,8 +7,8 @@
 /// Diese Datei wächst mit den Kern-Skills:
 ///   capture-core-build Stufe A ergänzt die storage-Exporte
 ///   monetize-modul     ergänzt die monetize-Exporte
+///   app-derive         schiebt Geteiltes aus Apps hierher (src/text/)
 library shared_base;
-
 export 'src/config/brand.dart';
 export 'src/config/features.dart';
 export 'src/config/registry.dart';
@@ -32,3 +32,5 @@ export 'src/storage/indexed_db_vault.dart';
 export 'src/storage/models.dart';
 export 'src/storage/native_vault.dart';
 export 'src/storage/vault_registration.dart';
+export 'src/text/spoken_dates.dart';
+export 'src/text/spoken_numbers.dart';

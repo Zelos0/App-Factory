@@ -72,8 +72,39 @@ void main() {
       final VoxSummary s = VoxSummary.of(<Entry>[]);
       expect(s.totalWords, 0);
       expect(s.peakWeekWords, 0);
-      expect(s.totalSpokenMinutesEstimate, 0);
+      expect(s.spokenMinutesEstimate, 0);
+      expect(s.spokenMinutesLabel, '0 Minuten');
       expect(s.topKeywords, isEmpty);
+    });
+
+    test('die große Zahl rundet kurze Aufnahmen nicht auf null Minuten', () {
+      final VoxSummary kurz = VoxSummary.of(<Entry>[
+        _entry('nur drei wörter', DateTime(2026, 8, 3)),
+      ]);
+      expect(kurz.spokenMinutesLabel, 'unter 1 Minute');
+    });
+
+    test('gesprochen gegen getippt — die Zahl, die das Versprechen trägt', () {
+      final VoxSummary s = VoxSummary.of(<Entry>[
+        _entry(
+          List<String>.generate(1300, (int i) => 'wort$i').join(' '),
+          DateTime(2026, 8, 3),
+        ),
+      ]);
+      expect(s.totalWords, 1300);
+      expect(s.spokenMinutesEstimate, 10);
+      expect(s.typedMinutesEstimate, 33);
+      expect(s.spokenMinutesLabel, '10 Minuten');
+    });
+
+    test('genau eine Minute wird im Singular geschrieben', () {
+      final VoxSummary s = VoxSummary.of(<Entry>[
+        _entry(
+          List<String>.generate(130, (int i) => 'wort$i').join(' '),
+          DateTime(2026, 8, 3),
+        ),
+      ]);
+      expect(s.spokenMinutesLabel, '1 Minute');
     });
 
     test('Eintrag ohne Interpreter-Daten zählt 0 statt zu werfen', () {

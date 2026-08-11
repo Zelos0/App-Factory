@@ -84,16 +84,23 @@ eigene Seite — sie ist eine Filterung der Liste, kein Ort.
 ## 5 — Auswertung
 
 ```
-Hauptform:            Verlauf über Zeit
-Gruppierung:          Woche
-Die eine große Zahl:  gesprochene Wörter gesamt
-Nebenform:            Häufigkeitsliste der Schlagworte über alle Einträge
+Hauptform:            Häufigkeitsliste der Schlagworte, absteigend
+Gruppierung:          Woche (Nebenform)
+Die eine große Zahl:  gesprochene Minuten gesamt
+Nebenform:            Verlauf je Woche
 ```
 
 Begründung: VOX hat keine Beträge, die sich addieren. Was sich addiert, ist
-gesprochener Umfang — und genau das ist der Beweis des Versprechens
-„Sprechen ist schneller als Tippen". Die Zahl oben ist deshalb keine Statistik-
-Spielerei, sondern das Verkaufsargument in Zahlenform.
+gesprochene Zeit — und genau das ist der Beweis des Versprechens „Sprechen ist
+schneller als Tippen". Unter der großen Zahl steht die Gegenrechnung:
+*„getippt wären das rund N Minuten"*. 130 Wörter je Minute gesprochen gegen
+40 getippt, beides vorsichtig geschätzt und ausdrücklich als Schätzung
+beschriftet. Die Zahl ist keine Statistik-Spielerei, sondern das
+Verkaufsargument in Zahlenform.
+
+Die Hauptform beantwortet die zweite Frage, die eine Notiz-App beantworten
+muss: *worüber spreche ich eigentlich?* Der Verlauf je Woche bleibt darunter
+als Nebenform — er zeigt Gewohnheit, nicht Inhalt.
 
 ## 6 — Export
 
@@ -153,13 +160,22 @@ Was diese App NICHT tut:  Sie erkennt keine Beträge, keine Händler, keine
                           Text, sie deutet ihn nicht.
 Wer das stattdessen tut:  KASSA (Beträge, Händler) · RITUS (Mengen, Zeiten)
                           ONIRA (Symbole) · ANAMNESE (Körper, Intensität)
-Was in den Kern gehört:   Satzzerlegung, Füllwort-Filter, deutsche Stoppwort-
-                          liste und Häufigkeitsanalyse werden von LITERA,
-                          ARCHIV und ONIRA ebenfalls gebraucht. Sie stehen
-                          heute bewusst in apps/vox/lib/src/vox_interpreter.dart
-                          und wandern als TextStats nach shared_base/text/,
-                          SOBALD die zweite App sie anfordert — nicht früher,
-                          weil ein Kern mit einem Nutzer kein Kern ist.
+Was in den Kern gehört:   ERLEDIGT — deutsche Zahlwörter und Zeitangaben
+                          stehen ab sofort in shared_base/src/text/ als
+                          SpokenNumbers und SpokenDates. KASSA (Beträge),
+                          RITUS (Mengen), FAHRTLOG (Kilometerstände),
+                          WERKBUCH (Maße) und ANAMNESE (Zeiträume) brauchen
+                          sie alle. VOX benutzt sie NICHT — dort bleibt Text
+                          Text. Sie liegen im Kern, weil sie sonst viermal
+                          geschrieben würden, nicht weil VOX sie bräuchte.
+
+                          NOCH OFFEN: Satzzerlegung, Füllwort-Filter,
+                          Stoppwortliste und Häufigkeitsanalyse stehen weiter
+                          in apps/vox/lib/src/vox_interpreter.dart. Sie
+                          wandern als TextStats nach shared_base/src/text/,
+                          SOBALD die zweite App sie anfordert (LITERA,
+                          ARCHIV, ONIRA) — nicht früher, weil ein Kern mit
+                          einem einzigen Nutzer kein Kern ist.
 ```
 
 ## 10 — Offene Punkte

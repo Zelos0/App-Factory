@@ -295,6 +295,21 @@ class <Flavor>Theme {
 Das eigentliche Herz der App und der einzige Teil mit hoher Fehlerdichte bei
 geringem Testaufwand: ein Satz geht rein, eine Struktur kommt raus.
 
+> **Vor dem Schreiben prüfen, was der Kern schon kann.** Seit dem
+> vox-Lauf stehen deutsche Zahlwörter und Zeitangaben in
+> `shared_base/src/text/`:
+>
+> ```dart
+> SpokenNumbers.parseAmount('zweiundzwanzig fünfzig bei Rewe')  // 22.50
+> SpokenNumbers.parseWord('hundertvierundachtzig')              // 184
+> SpokenDates.parse('letzten Freitag', now: DateTime.now())     // Datum
+> ```
+>
+> Der Betrags- und Zahlwort-Code weiter unten ist **Vorlage zum Verstehen,
+> nicht zum Kopieren**. Wer ihn in eine App schreibt, hat ihn beim fünften
+> Flavor fünfmal — und behebt jeden Fehler fünfmal. Ein Interpreter ruft
+> den Kern auf und macht nur noch das, was seiner App eigen ist.
+
 Datei: `apps/<flavor>/lib/src/<flavor>_interpreter.dart`
 
 ```dart

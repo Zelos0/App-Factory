@@ -53,24 +53,63 @@ class _Report extends StatelessWidget {
         AdSafeArea.scrollPadding(context),
       ),
       children: <Widget>[
-        Text('Gesprochene Wörter', style: theme.textTheme.labelLarge),
+        Text('Gesprochen statt getippt', style: theme.textTheme.labelLarge),
         // Die eine große Zahl. Bewusst umbruchfähig statt beschnitten,
         // damit sie auch bei größter Schriftstufe vollständig lesbar ist.
         Text(
-          '${summary.totalWords}',
+          summary.spokenMinutesLabel,
           style: theme.textTheme.displaySmall,
           softWrap: true,
         ),
         const SizedBox(height: Tokens.xs),
         Text(
-          '${summary.entryCount} Einträge · '
-          '${summary.totalSpokenMinutesEstimate} Minuten gesprochen (geschätzt)',
+          '${summary.totalWords} Wörter in ${summary.entryCount} Einträgen · '
+          'getippt wären das rund ${summary.typedMinutesEstimate} Minuten',
           style:
               theme.textTheme.labelMedium?.copyWith(color: VoxTheme.secondary),
         ),
         const SizedBox(height: Tokens.xl),
 
-        // --- Hauptform: Verlauf je Woche ---
+        // --- Hauptform: Häufigkeitsliste der Schlagworte ---
+        Text('Worüber du sprichst', style: theme.textTheme.labelLarge),
+        const SizedBox(height: Tokens.s),
+        if (summary.topKeywords.isEmpty)
+          Text(
+            'Noch kein Wort, das sich wiederholt.',
+            style: theme.textTheme.labelMedium
+                ?.copyWith(color: VoxTheme.secondary),
+          )
+        else
+          for (final MapEntry<String, int> k in summary.topKeywords)
+            Padding(
+              padding: const EdgeInsets.only(bottom: Tokens.s),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Flexible(child: Text(k.key)),
+                      Text(
+                        '${k.value}',
+                        style: theme.textTheme.labelMedium
+                            ?.copyWith(color: VoxTheme.secondary),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: Tokens.xs),
+                  LinearProgressIndicator(
+                    value: summary.topKeywords.first.value == 0
+                        ? 0
+                        : k.value / summary.topKeywords.first.value,
+                    minHeight: Tokens.xs,
+                  ),
+                ],
+              ),
+            ),
+
+        // --- Nebenform: Verlauf je Woche ---
+        const SizedBox(height: Tokens.xl),
         Text('Verlauf je Woche', style: theme.textTheme.labelLarge),
         const SizedBox(height: Tokens.s),
         for (final String w in weeks)
@@ -94,28 +133,6 @@ class _Report extends StatelessWidget {
               ],
             ),
           ),
-
-        // --- Nebenform: Häufigkeitsliste der Schlagworte ---
-        if (summary.keywordCounts.isNotEmpty) ...<Widget>[
-          const SizedBox(height: Tokens.l),
-          Text('Häufigste Schlagworte', style: theme.textTheme.labelLarge),
-          const SizedBox(height: Tokens.s),
-          for (final MapEntry<String, int> k in summary.topKeywords)
-            Padding(
-              padding: const EdgeInsets.only(bottom: Tokens.xs),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Flexible(child: Text(k.key)),
-                  Text(
-                    '${k.value}',
-                    style: theme.textTheme.labelMedium
-                        ?.copyWith(color: VoxTheme.secondary),
-                  ),
-                ],
-              ),
-            ),
-        ],
       ],
     );
   }
@@ -170,10 +187,32 @@ class VoxSummary {
       ? 0
       : byWeek.values.reduce((int a, int b) => a > b ? a : b);
 
-  /// Grobe Schätzung bei 130 gesprochenen Wörtern je Minute. Sie steht
-  /// ausdrücklich als Schätzung dran — eine genaue Zahl bräuchte die
-  /// Audiodauer, und die fehlt, solange Segmente ohne Medium erlaubt sind.
-  int get totalSpokenMinutesEstimate => (totalWords / 130).round();
+  /// Gesprochen wird mit etwa 130 Wörtern je Minute. Eine genaue Zahl
+  /// bräuchte die Audiodauer je Segment — die fehlt, solange Segmente ohne
+  /// Medium erlaubt sind. Deshalb Schätzung, und deshalb steht das auch dran.
+  static const int wordsPerMinuteSpoken = 130;
+
+  /// Getippt schafft ein geübter Mensch etwa 40 Wörter je Minute, auf einer
+  /// Telefontastatur weniger. 40 ist die vorsichtige Annahme — die Zahl soll
+  /// tragen, nicht beeindrucken.
+  static const int wordsPerMinuteTyped = 40;
+
+  int get spokenMinutesEstimate => (totalWords / wordsPerMinuteSpoken).round();
+
+  int get typedMinutesEstimate => (totalWords / wordsPerMinuteTyped).round();
+
+  /// Unter einer Minute wird nicht auf „0 Minuten" gerundet — das liest
+  /// sich wie ein Fehler, obwohl gesprochen wurde.
+  String get spokenMinutesLabel {
+    if (totalWords == 0) {
+      return '0 Minuten';
+    }
+    final int minutes = spokenMinutesEstimate;
+    if (minutes < 1) {
+      return 'unter 1 Minute';
+    }
+    return minutes == 1 ? '1 Minute' : '$minutes Minuten';
+  }
 
   List<MapEntry<String, int>> get topKeywords {
     final List<MapEntry<String, int>> all = keywordCounts.entries.toList()

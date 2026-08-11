@@ -334,10 +334,19 @@ Hardware in Firebase Test Lab.
 ### Aufruf 1
 
 ```
-Führe konzept-zu-bauplan für vox aus. Steckbrief: Sprachnotizen mit
-Ausgabenerkennung. Ergebnis nach docs/baupläne/vox.md: Interpreter-Regeln,
-Datenfelder, Bildschirme, Exportvorlage, zwölf Testsätze.
+Führe konzept-zu-bauplan für vox aus. Steckbrief steht in
+docs/steckbriefe/vox.md — halt dich daran, auch wenn dieser Workflow
+etwas anderes nahelegt. Ergebnis nach docs/baupläne/vox.md:
+Interpreter-Regeln, Datenfelder, Bildschirme, Exportvorlage, zwölf
+Testsätze.
 ```
+
+> **Korrektur, 11.08.2026.** Frühere Fassungen nannten hier „Sprachnotizen
+> mit Ausgabenerkennung" und den Satz „zweiundzwanzig fünfzig bei Rewe".
+> Das ist der Interpreter von **KASSA**, nicht von VOX. Der Steckbrief von
+> VOX sagt ausdrücklich *„Kein Interpreter — Text bleibt Text"*. Bei einem
+> Widerspruch zwischen Workflow und Steckbrief gewinnt der Steckbrief: der
+> Workflow beschreibt den Ablauf, der Steckbrief das Erzeugnis.
 
 ### Aufruf 2
 
@@ -351,12 +360,18 @@ VoxTheme und den Store-Metadaten-Rahmen.
 
 - `apps/vox/lib/src/vox_interpreter.dart` — schreibt strukturierte Felder nach
   `Entry.data`
-- `apps/vox/test/vox_interpreter_test.dart` — mindestens **zwölf** realistische
-  Beispielsätze. `"zweiundzwanzig fünfzig bei Rewe"` muss `22,50 €` und
-  Händler `Rewe` ergeben. Deutsche Zahlwörter, Komma als Dezimaltrenner,
-  „gestern" und „letzten Freitag".
-- `apps/vox/lib/src/insights_screen.dart` — Summen je Zeitraum, Verlauf,
-  Gruppierung
+- `apps/vox/test/vox_interpreter_test.dart` — mindestens **zwölf**
+  realistische Beispielsätze nach der Mischung aus `TESTLEITER.md` Stufe 0:
+  vier normal, drei Erkennungsfehler der Gratis-Engine, zwei unvollständig,
+  zwei Grenzfall, einer leer.
+- **Deutsche Zahlwörter und Zeitangaben gehören nicht in die App.** Sie
+  stehen seit Tag 4 in `shared_base/src/text/` als `SpokenNumbers` und
+  `SpokenDates`, mit eigenen Tests — benutzt von KASSA, RITUS, FAHRTLOG,
+  WERKBUCH und ANAMNESE. Dass `"zweiundzwanzig fünfzig bei Rewe"` zu
+  `22.50` wird, prüft `packages/shared_base/test/text_test.dart`, nicht
+  `vox`.
+- `apps/vox/lib/src/insights_screen.dart` — die eine große Zahl
+  (gesprochene Minuten), Häufigkeitsliste der Schlagworte, Verlauf je Woche
 - `apps/vox/lib/src/home_screen.dart` und `apps/vox/lib/main.dart` — die
   Gerüst-App aus Tag 1 wird ersetzt, nicht ergänzt
 - `apps/vox/lib/src/vox_theme.dart` — vier Farben, zwei Schriftfamilien,
@@ -368,7 +383,8 @@ VoxTheme und den Store-Metadaten-Rahmen.
    einstellen.
 2. Detailansicht: die vom Interpreter erkannten Felder stehen sichtbar unter
    dem Transkript, nicht statt seiner.
-3. Auswertungsansicht: die Summe stimmt rechnerisch mit den drei Einträgen.
+3. Auswertungsansicht: die große Zahl und die Wortzahl stimmen
+   rechnerisch mit den drei Einträgen.
 4. Ein Segment nachträglich anhängen → die Auswertung aktualisiert sich, ohne
    dass die App neu geladen wird.
 5. Schriftgröße in iOS auf die größte Stufe → keine abgeschnittenen Zahlen,
