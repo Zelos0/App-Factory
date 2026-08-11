@@ -169,14 +169,15 @@ oder ersetzt.
 
 - [x] **Zwölf Beispielsätze** — in Abschnitt 8 geschrieben.
 - [x] **Feldschema für `Entry.data`** — Abschnitt 3.
-- [ ] **Gratis gegen Pro.** Vorschlag, an die Bände gebunden: Aufnehmen,
+- [x] **Gratis gegen Pro — vom Nutzer bestätigt am 11.08.2026.** Aufnehmen,
       Transkribieren, Suchen, alle vier Exporte und die Fluchttür bleiben
       **immer kostenlos**. Zur Pro-Stufe gehören ausschließlich
       Bequemlichkeitsfunktionen: „Präzision prüfen" (Zweit-Engine im
       Vergleich), Abspielgeschwindigkeit außerhalb 1,0×, Startbildschirm-
       Widget, Schnelleinstellungen-Kachel, automatische Stille-Erkennung.
       Ordner und Schlagworte bleiben gratis — sie sind Ordnung, kein Luxus.
-      **Zu bestätigen, bevor `monetize-modul` Kaufpunkte setzt.**
+      Bezahlt wird für Qualität, nie für Zugang. `monetize-modul` darf
+      die Kaufpunkte nach dieser Aufteilung setzen.
 
 ## 11 — Vollständigkeitsprüfung
 

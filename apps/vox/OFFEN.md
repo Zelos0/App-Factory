@@ -5,11 +5,11 @@ Ein notierter offener Punkt ist verantwortbar, ein stiller nicht.
 
 ## Aus Tag 4 offen geblieben
 
-- [ ] **Gratis gegen Pro ist nicht entschieden.** Vorschlag steht in
-      `docs/baupläne/vox.md` Abschnitt 10. Bis zur Entscheidung setzt
-      `monetize-modul` keine Kaufpunkte. Aufnehmen, Transkribieren, Suchen,
-      alle Exporte und die Fluchttür sind derzeit uneingeschränkt frei —
-      das ist der sichere Zustand, nicht der endgültige.
+- [x] **Gratis gegen Pro ist entschieden** (11.08.2026). Gratis: Aufnehmen,
+      Transkribieren, Suchen, alle vier Exporte, Fluchttür, Ordner und
+      Schlagworte. Pro: „Präzision prüfen", Abspielgeschwindigkeit, Widget,
+      Schnelleinstellungen-Kachel, Stille-Erkennung. Bezahlt wird für
+      Qualität, nie für Zugang. Steht in `docs/baupläne/vox.md` Abschnitt 10.
 
 - [ ] **Der Export läuft über die Zwischenablage, nicht über Dateien.**
       Der Web-Build hat keinen Dateidialog. Statt einer halben Lösung landet
