@@ -15,7 +15,10 @@ void main() {
         'Ich muss morgen den Vertrag prüfen. Der Vertrag läuft im März aus.',
       );
       expect(r.title, 'Ich muss morgen den Vertrag prüfen.');
-      expect(r.keywords.map((String k) => k.toLowerCase()), contains('vertrag'));
+      expect(
+        r.keywords.map((String k) => k.toLowerCase()),
+        contains('vertrag'),
+      );
       expect(r.confidence, 1.0);
     });
 
@@ -25,7 +28,10 @@ void main() {
         'Offline ist das Argument.',
       );
       expect(r.title, 'Idee für die App');
-      expect(r.keywords.map((String k) => k.toLowerCase()), contains('offline'));
+      expect(
+        r.keywords.map((String k) => k.toLowerCase()),
+        contains('offline'),
+      );
       expect(r.confidence, 1.0);
     });
 
@@ -59,7 +65,10 @@ void main() {
       expect(r.title, isNotNull);
       expect(r.title!.startsWith('ich wollte'), isTrue,
           reason: 'Füllwörter "also" und "ähm" müssen weg sein');
-      expect(r.keywords.map((String k) => k.toLowerCase()), contains('projekt'));
+      expect(
+        r.keywords.map((String k) => k.toLowerCase()),
+        contains('projekt'),
+      );
     });
 
     test('6 Engine-Fehler — kein Satzzeichen, alles klein', () {
@@ -150,8 +159,9 @@ void main() {
     });
 
     test('zustandsfrei — zweimal derselbe Satz, gleiches Ergebnis', () {
-      final VoxResult a = interpreter.parse('Notiz zur Besprechung. Besprechung');
-      final VoxResult b = interpreter.parse('Notiz zur Besprechung. Besprechung');
+      const String text = 'Notiz zur Besprechung. Besprechung';
+      final VoxResult a = interpreter.parse(text);
+      final VoxResult b = interpreter.parse(text);
       expect(a.toJson(), b.toJson());
     });
 

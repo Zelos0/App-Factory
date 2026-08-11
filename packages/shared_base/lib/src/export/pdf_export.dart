@@ -16,6 +16,7 @@ class PdfRecipient {
     this.footer,
     this.columns = const <String>[],
     this.accent = const PdfColor(0.1, 0.1, 0.1),
+    this.showSegmentTimes = false,
   });
 
   /// Wer es bekommt: 'Finanzamt', 'Vermieter', 'Hausarzt', 'Versicherung'.
@@ -29,6 +30,13 @@ class PdfRecipient {
   final List<String> columns;
 
   final PdfColor accent;
+
+  /// Protokoll-Optik: Datum groß über dem Eintrag, jedes Segment mit
+  /// eigener Uhrzeit darunter. Für Empfänger, denen der Verlauf wichtiger
+  /// ist als die Zusammenfassung — VOX (eigenes Archiv), ANAMNESE (Arzt),
+  /// WERKBUCH (Bauherr). Ohne diesen Schalter wird der Volltext am Stück
+  /// gesetzt, wie bisher.
+  final bool showSegmentTimes;
 }
 
 /// Erzeugt das Empfänger-PDF. Der Aufbau ist für alle Apps gleich, der
@@ -84,7 +92,7 @@ class PdfExport {
         ),
         build: (pw.Context context) => <pw.Widget>[
           if (recipient.columns.isEmpty)
-            ..._asProse(entries)
+            ..._asProse(entries, showSegmentTimes: recipient.showSegmentTimes)
           else
             _asTable(entries, recipient.columns),
         ],
@@ -94,22 +102,71 @@ class PdfExport {
     return Uint8List.fromList(await doc.save());
   }
 
-  List<pw.Widget> _asProse(List<EntryWithSegments> entries) {
+  List<pw.Widget> _asProse(
+    List<EntryWithSegments> entries, {
+    required bool showSegmentTimes,
+  }) {
     return entries
         .map(
           (EntryWithSegments e) => pw.Padding(
-            padding: const pw.EdgeInsets.only(bottom: 12),
+            padding: const pw.EdgeInsets.only(bottom: 18),
             child: pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: <pw.Widget>[
+                if (e.entry.title != null)
+                  pw.Text(
+                    e.entry.title!,
+                    style: pw.TextStyle(
+                      fontSize: 13,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                  ),
                 pw.Text(
                   _date(e.entry.createdAt),
                   style: pw.TextStyle(
-                    fontSize: 9,
+                    fontSize: showSegmentTimes ? 13 : 9,
                     fontWeight: pw.FontWeight.bold,
                   ),
                 ),
-                pw.Text(e.fullText, style: const pw.TextStyle(fontSize: 11)),
+                pw.SizedBox(height: showSegmentTimes ? 6 : 2),
+                if (showSegmentTimes)
+                  ..._segments(e)
+                else
+                  pw.Text(
+                    e.fullText,
+                    style: const pw.TextStyle(fontSize: 11, lineSpacing: 3),
+                  ),
+              ],
+            ),
+          ),
+        )
+        .toList();
+  }
+
+  /// Die Segmentkette einzeln, jedes mit seiner Uhrzeit. Das ist der
+  /// Unterschied zwischen einem Protokoll und einer Textwand: man sieht,
+  /// wann etwas dazugekommen ist.
+  List<pw.Widget> _segments(EntryWithSegments e) {
+    return e.segments
+        .map(
+          (Segment s) => pw.Padding(
+            padding: const pw.EdgeInsets.only(bottom: 8),
+            child: pw.Row(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: <pw.Widget>[
+                pw.SizedBox(
+                  width: 44,
+                  child: pw.Text(
+                    _time(s.createdAt),
+                    style: const pw.TextStyle(fontSize: 9),
+                  ),
+                ),
+                pw.Expanded(
+                  child: pw.Text(
+                    s.transcript ?? '(kein Text)',
+                    style: const pw.TextStyle(fontSize: 11, lineSpacing: 3),
+                  ),
+                ),
               ],
             ),
           ),
@@ -135,4 +192,7 @@ class PdfExport {
 
   static String _date(DateTime d) => '${d.day.toString().padLeft(2, '0')}.'
       '${d.month.toString().padLeft(2, '0')}.${d.year}';
+
+  static String _time(DateTime d) => '${d.hour.toString().padLeft(2, '0')}:'
+      '${d.minute.toString().padLeft(2, '0')}';
 }

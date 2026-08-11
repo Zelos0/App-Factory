@@ -156,9 +156,31 @@ void main() {
     });
   });
 
-  test('PDF-Empfänger ist der Nutzer selbst — keine Behörden-Tabelle', () {
-    final PdfRecipient r = export.pdfRecipient;
-    expect(r.name, 'Eigenes Archiv');
-    expect(r.columns, isEmpty, reason: 'Fließtext, keine Spalten');
+  group('PDF — Empfänger ist der Nutzer selbst, später', () {
+    test('keine Behörden-Tabelle, sondern Protokoll-Optik', () {
+      final PdfRecipient r =
+          export.pdfRecipientFor(<EntryWithSegments>[_sample()]);
+      expect(r.name, 'Eigenes Archiv');
+      expect(r.columns, isEmpty, reason: 'Fließtext, keine Spalten');
+      expect(r.showSegmentTimes, isTrue, reason: 'Uhrzeit je Segment');
+    });
+
+    test('Untertitel ist der Zeitraum, nicht Werbetext', () {
+      final PdfRecipient r =
+          export.pdfRecipientFor(<EntryWithSegments>[_sample()]);
+      expect(r.subline, '03.08.2026');
+    });
+
+    test('im Fuß stehen die Schlagworte', () {
+      final PdfRecipient r =
+          export.pdfRecipientFor(<EntryWithSegments>[_sample()]);
+      expect(r.footer, contains('vertrag'));
+    });
+
+    test('ohne Einträge bleibt der Fuß lesbar statt leer', () {
+      final PdfRecipient r = export.pdfRecipientFor(<EntryWithSegments>[]);
+      expect(r.subline, 'Keine Einträge');
+      expect(r.footer, isNotEmpty);
+    });
   });
 }

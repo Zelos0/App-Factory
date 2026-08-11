@@ -124,14 +124,54 @@ class VoxExport {
     };
   }
 
-  /// Empfänger: ein Mensch — hier der Nutzer selbst. Kein Amt, keine
-  /// Tabelle, deshalb leere Spaltenliste und Fließtext.
-  PdfRecipient get pdfRecipient => const PdfRecipient(
+  /// Empfänger: ein Mensch — hier der Nutzer selbst, später.
+  ///
+  /// Kein Amt, kein Briefkopf, keine Unterschriftszeile. Protokoll-Optik:
+  /// Datum groß, die Segmentkette chronologisch mit Uhrzeit, Transkript in
+  /// Lesetypografie. Im Fuß stehen die häufigsten Schlagworte — damit der
+  /// Ausdruck wiederauffindbar ist, ohne ihn zu lesen.
+  PdfRecipient pdfRecipientFor(List<EntryWithSegments> entries) =>
+      PdfRecipient(
         name: 'Eigenes Archiv',
         headline: 'Sprachnotizen',
-        subline: 'Aufgezeichnet mit Vox — offline, ohne Konto',
-        footer: 'Vox · de.zeta.vox',
+        subline: _range(entries),
+        footer: _footer(entries),
+        showSegmentTimes: true,
       );
+
+  /// Zeitraum der Sammlung, statt eines leeren Untertitels.
+  static String _range(List<EntryWithSegments> entries) {
+    if (entries.isEmpty) {
+      return 'Keine Einträge';
+    }
+    final List<DateTime> dates = entries
+        .map((EntryWithSegments e) => e.entry.createdAt)
+        .toList()
+      ..sort();
+    final String from = _date(dates.first);
+    final String to = _date(dates.last);
+    return from == to ? from : '$from bis $to';
+  }
+
+  /// Die häufigsten Schlagworte über alle Einträge, absteigend.
+  static String _footer(List<EntryWithSegments> entries) {
+    final Map<String, int> counts = <String, int>{};
+    for (final EntryWithSegments e in entries) {
+      for (final String k in VoxResult.fromJson(e.entry.data).keywords) {
+        final String key = k.toLowerCase();
+        counts[key] = (counts[key] ?? 0) + 1;
+      }
+    }
+    if (counts.isEmpty) {
+      return 'Vox · offline aufgezeichnet, ohne Konto';
+    }
+    final List<String> top = counts.keys.toList()
+      ..sort((String a, String b) {
+        final int byCount = counts[b]!.compareTo(counts[a]!);
+        return byCount != 0 ? byCount : a.compareTo(b);
+      });
+    return 'Vox · ${top.take(6).join(' · ')}';
+  }
 
   /// Fluchttür: vollständiges JSON. Immer kostenlos, immer sichtbar.
   /// Das ZIP der Originaldateien erzeugt `VaultExport.toZip`.

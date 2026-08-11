@@ -108,7 +108,7 @@ als Nebenform — er zeigt Gewohnheit, nicht Inhalt.
 |---|---|---|
 | Nutzer, später | Markdown + YAML | Frontmatter: `id`, `typ`, `erstellt`, `titel`, `schlagworte`, `woerter` · Verweise: jedes Schlagwort als `[[Schlagwort]]` |
 | KI-Modell | Kontextbündel | Schema-Kopf: `title`, `keywords`, `wordCount`, `segments` · Auftrag: „Fasse die Notizen thematisch zusammen und nenne offene Punkte, die noch nicht zu Ende gedacht sind." |
-| Mensch mit Autorität | PDF | Empfänger: **niemand mit Autorität** — VOX ist eine private Notiz-App. Das PDF ist ein Lesedokument für den Nutzer selbst: Titel, Datum, Transkript in Serifenschrift, keine Tabelle. `PdfRecipient(name: 'Eigenes Archiv', columns: [])`. |
+| Mensch mit Autorität | PDF | Empfänger: **der Nutzer selbst, später** — VOX ist eine private Notiz-App, es gibt keine Behörde am anderen Ende. Protokoll-Optik: Datum groß, Segmentkette chronologisch mit Uhrzeit je Segment, Transkript in Lesetypografie, häufigste Schlagworte im Fuß. Kein Briefkopf, keine Unterschriftszeile. `PdfRecipient(name: 'Eigenes Archiv', columns: [], showSegmentTimes: true)`. **Gehört zur Pro-Stufe** — aufbereitete Formate dürfen kosten, die Fluchttür nie. |
 | Andere Software | TXT und JSON | TXT: reiner Volltext, ein Eintrag je Datei. JSON: Zeitstempel je Segment — Spalten `id`, `erstellt`, `titel`, `woerter`, `schlagworte`, `text` |
 | **Fluchttür** | JSON + ZIP | vollständig, kostenlos, in den Einstellungen |
 
@@ -185,15 +185,19 @@ oder ersetzt.
 
 - [x] **Zwölf Beispielsätze** — in Abschnitt 8 geschrieben.
 - [x] **Feldschema für `Entry.data`** — Abschnitt 3.
-- [x] **Gratis gegen Pro — vom Nutzer bestätigt am 11.08.2026.** Aufnehmen,
-      Transkribieren, Suchen, alle vier Exporte und die Fluchttür bleiben
-      **immer kostenlos**. Zur Pro-Stufe gehören ausschließlich
-      Bequemlichkeitsfunktionen: „Präzision prüfen" (Zweit-Engine im
-      Vergleich), Abspielgeschwindigkeit außerhalb 1,0×, Startbildschirm-
-      Widget, Schnelleinstellungen-Kachel, automatische Stille-Erkennung.
-      Ordner und Schlagworte bleiben gratis — sie sind Ordnung, kein Luxus.
-      Bezahlt wird für Qualität, nie für Zugang. `monetize-modul` darf
-      die Kaufpunkte nach dieser Aufteilung setzen.
+- [x] **Gratis gegen Pro — vom Nutzer entschieden am 11.08.2026.**
+
+      | Stufe | Umfang |
+      |---|---|
+      | Gratis | Aufnehmen · Transkribieren · Segmente erweitern, verschieben, löschen · Suche · Ordner und Schlagworte · Export als Markdown, TXT und JSON · **Fluchttür** · Startbildschirm-Widget · Schnelleinstellungen-Kachel · automatische Stille-Erkennung |
+      | Pro | **Präzision prüfen** (beide Engines im Vergleich) · **PDF-Export** · **Abspielgeschwindigkeit** außer 1,0× |
+
+      Drei Dinge kosten, alles andere nicht. Das deckt sich mit
+      `ARCHITEKTUR.md` Abschnitt 7: aufbereitete Formate dürfen zur
+      Kaufversion gehören, die Rohdaten nie — Markdown, TXT und JSON sind
+      Rohdaten in lesbarer Form, das PDF ist Aufbereitung.
+      Bezahlt wird für Qualität, nie für Zugang. `monetize-modul` darf die
+      Kaufpunkte nach dieser Aufteilung setzen.
 
 ## 11 — Vollständigkeitsprüfung
 

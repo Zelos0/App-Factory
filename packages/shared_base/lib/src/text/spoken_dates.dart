@@ -50,7 +50,9 @@ class SpokenDates {
       final String? rawYear = m.group(4);
       final int year = rawYear == null
           ? now.year
-          : (rawYear.length == 2 ? 2000 + int.parse(rawYear) : int.parse(rawYear));
+          : (rawYear.length == 2
+              ? 2000 + int.parse(rawYear)
+              : int.parse(rawYear));
       if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
         take(m.start, DateTime(year, month, day));
       }

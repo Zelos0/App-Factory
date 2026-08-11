@@ -5,11 +5,12 @@ Ein notierter offener Punkt ist verantwortbar, ein stiller nicht.
 
 ## Aus Tag 4 offen geblieben
 
-- [x] **Gratis gegen Pro ist entschieden** (11.08.2026). Gratis: Aufnehmen,
-      Transkribieren, Suchen, alle vier Exporte, Fluchttür, Ordner und
-      Schlagworte. Pro: „Präzision prüfen", Abspielgeschwindigkeit, Widget,
-      Schnelleinstellungen-Kachel, Stille-Erkennung. Bezahlt wird für
-      Qualität, nie für Zugang. Steht in `docs/baupläne/vox.md` Abschnitt 10.
+- [x] **Gratis gegen Pro ist entschieden** (11.08.2026). Genau drei Dinge
+      kosten: „Präzision prüfen", PDF-Export und Abspielgeschwindigkeit
+      außer 1,0×. Alles andere ist gratis, einschließlich Widget,
+      Schnelleinstellungen-Kachel, Stille-Erkennung, Markdown-, TXT- und
+      JSON-Export sowie der Fluchttür. Bezahlt wird für Qualität, nie für
+      Zugang. Tabelle in `docs/baupläne/vox.md` Abschnitt 10.
 
 - [ ] **Der Export läuft über die Zwischenablage, nicht über Dateien.**
       Der Web-Build hat keinen Dateidialog. Statt einer halben Lösung landet
@@ -17,10 +18,12 @@ Ein notierter offener Punkt ist verantwortbar, ein stiller nicht.
       Fluchttür (`VaultExport.toZip`) kommen mit `test-loop-free` Stufe 1.
       Der Inhalt ist bereits vollständig — nur der Weg nach draußen fehlt.
 
-- [ ] **PDF-Export ist vorbereitet, aber nicht verdrahtet.**
-      `VoxExport.pdfRecipient` liefert den Parametersatz, `PdfExport.build`
-      erzeugt daraus die Datei. Der Knopf dafür wartet auf denselben
-      Datei-Weg wie oben.
+- [ ] **PDF-Export ist zugeschnitten, aber nicht verdrahtet.**
+      `VoxExport.pdfRecipientFor(entries)` liefert den Parametersatz —
+      Protokoll-Optik, Uhrzeit je Segment, Zeitraum als Untertitel,
+      Schlagworte im Fuß —, `PdfExport.build` erzeugt daraus die Datei.
+      Der Knopf dafür wartet auf denselben Datei-Weg wie oben. Er gehört
+      zur Pro-Stufe und bleibt deshalb bis `monetize-modul` ohnehin aus.
 
 - [ ] **Golden-Tests fehlen noch.** Sechs Bilder (Start, Liste, Detail — je
       hell und dunkel) gehören zu Tag 5. `app-derive` legt nur das

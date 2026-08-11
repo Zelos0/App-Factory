@@ -118,7 +118,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             subtitle: const Text('Schema, Einträge und ein fertiger Auftrag'),
             enabled: !_busy,
             onTap: () => unawaited(
-              _copy('Kontextbündel', () async => _export.aiBundle(await _all())),
+              _copy(
+                'Kontextbündel',
+                () async => _export.aiBundle(await _all()),
+              ),
             ),
           ),
           ListTile(
