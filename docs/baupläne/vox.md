@@ -189,14 +189,21 @@ oder ersetzt.
 
       | Stufe | Umfang |
       |---|---|
-      | Gratis | Aufnehmen · Transkribieren · Segmente erweitern, verschieben, löschen, neu transkribieren · Suche · Ordner und Schlagworte · **alle vier Exporte**, PDF eingeschlossen · **Fluchttür** |
-      | Pro | **Präzision prüfen** (beide Engines im Vergleich) · **Abspielgeschwindigkeit** außer 1,0× · **Startbildschirm-Widget** · **Schnelleinstellungen-Kachel** · **automatische Stille-Erkennung** |
+      | Gratis | Aufnehmen · Transkribieren · Segmente erweitern, verschieben, löschen, neu transkribieren · Suche über alles · automatisch erkannte Schlagworte · **alle vier Exporte**, PDF eingeschlossen · **Fluchttür** |
+      | Pro | **Präzision prüfen** (beide Engines im Vergleich) · **Ordner** (selbst angelegte Ablage) · **Abspielgeschwindigkeit** außer 1,0× · **Startbildschirm-Widget** · **Schnelleinstellungen-Kachel** · **automatische Stille-Erkennung** |
 
       Die Trennlinie liegt zwischen *Funktion* und *Komfort*, nicht zwischen
       *wenig* und *viel*. Alles, was eine Notiz erzeugt, findet oder wieder
       hinausträgt, ist kostenlos — der Export eingeschlossen, weil „kein
       Lock-in" sonst nur ein Satz im Store-Text wäre. Bezahlt wird für
       Tempo und Präzision.
+
+      **Warum Ordner trotzdem kosten dürfen.** Die Suche findet alles, immer,
+      kostenlos — niemand verliert eine Notiz, weil er nicht zahlt. Ordner
+      sind selbst angelegte Ablage, und die braucht man erst bei zweihundert
+      Einträgen. Wer dort ankommt, benutzt die App täglich und hat den
+      Gegenwert längst gesehen. Automatisch erkannte Schlagworte bleiben
+      gratis: sie sind Ausgabe des Interpreters, keine Ablage.
 
       Das Kaufargument lautet damit nicht „schalt die App frei", sondern
       „nimm die Präzisions-Engine dazu". Das ist die leichtere Entscheidung

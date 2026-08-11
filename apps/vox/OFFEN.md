@@ -8,9 +8,11 @@ Ein notierter offener Punkt ist verantwortbar, ein stiller nicht.
 - [x] **Gratis gegen Pro ist entschieden** (11.08.2026). Die Trennlinie
       liegt zwischen Funktion und Komfort. Gratis ist alles, was eine Notiz
       erzeugt, findet oder wieder hinausträgt — **alle vier Exporte
-      eingeschlossen, PDF und Fluchttür ebenso**. Pro sind: „Präzision
-      prüfen", Abspielgeschwindigkeit außer 1,0×, Startbildschirm-Widget,
-      Schnelleinstellungen-Kachel, automatische Stille-Erkennung.
+      eingeschlossen, PDF und Fluchttür ebenso**, dazu die Suche über alles
+      und die automatisch erkannten Schlagworte. Pro sind: „Präzision
+      prüfen", **Ordner**, Abspielgeschwindigkeit außer 1,0×,
+      Startbildschirm-Widget, Schnelleinstellungen-Kachel, automatische
+      Stille-Erkennung.
       Kaufargument ist „nimm die Präzisions-Engine dazu", nicht „schalt die
       App frei". Tabelle in `docs/baupläne/vox.md` Abschnitt 10.
 
