@@ -9,4 +9,5 @@ export 'src/stt/stt_engine.dart';
 export 'src/stt/stt_registration.dart';
 export 'src/stt/web_stub_stt_engine.dart';
 export 'src/ui/record_button.dart';
+export 'src/ui/segment_play_button.dart';
 export 'src/ui/waveform.dart';

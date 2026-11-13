@@ -8,11 +8,15 @@ import 'package:shared_base/shared_base.dart';
 import 'package:uuid/uuid.dart';
 
 import '../stt/stt_engine.dart';
+import 'blob/blob_reader.dart';
 import 'recorder.dart';
 
-/// Aufnahme über das Mikrofon. Funktioniert auf Android, iOS und im Browser —
-/// im Browser über MediaRecorder, dort ist [RecordingResult.path] eine
-/// Blob-URL statt eines Dateipfads.
+/// Aufnahme über das Mikrofon. Funktioniert auf Android, iOS und im Browser.
+///
+/// Im Browser landet die Aufnahme nach dem Stopp in der registrierten
+/// [FileVault] (IndexedDB) — [RecordingResult.path] ist dann ein Vault-Pfad
+/// und überlebt Neuladen. Das Format wählt der Recorder selbst: Opus/WebM,
+/// wo es geht (Chrome, Edge, Firefox), sonst AAC/MP4 (Safari), sonst WAV.
 ///
 /// Ist eine [LiveSttEngine] registriert, hört sie automatisch mit: Start,
 /// Pause, Fortsetzen und Stopp der Aufnahme steuern auch die Erkennung. Die
@@ -42,6 +46,7 @@ class PlatformAudioRecorder implements AudioRecorder {
   final StreamController<double> _amp = StreamController<double>.broadcast();
 
   Timer? _ampTimer;
+  _WebFormat? _webFormat;
   DateTime? _startedAt;
   Duration _accumulated = Duration.zero;
   String? _path;
@@ -64,8 +69,9 @@ class PlatformAudioRecorder implements AudioRecorder {
 
     if (kIsWeb) {
       _path = null;
+      final _WebFormat format = _webFormat ??= await _pickWebFormat();
       await _recorder.start(
-        const r.RecordConfig(encoder: r.AudioEncoder.opus),
+        r.RecordConfig(encoder: format.encoder, numChannels: 1),
         path: '',
       );
     } else {
@@ -121,7 +127,47 @@ class PlatformAudioRecorder implements AudioRecorder {
     if (path == null) {
       return null;
     }
+    if (kIsWeb) {
+      return RecordingResult(path: await _keep(path), duration: total);
+    }
     return RecordingResult(path: path, duration: total);
+  }
+
+  /// Übernimmt eine Browser-Aufnahme aus der flüchtigen Blob-Adresse in die
+  /// Ablage. Klappt das nicht, bleibt die Blob-Adresse — in dieser Sitzung
+  /// abspielbar, statt sofort verloren.
+  Future<String> _keep(String blobUrl) async {
+    if (!Registry.instance.has<FileVault>()) {
+      return blobUrl;
+    }
+    final Uint8List? bytes = await readBlobUrl(blobUrl);
+    if (bytes == null || bytes.isEmpty) {
+      return blobUrl;
+    }
+    try {
+      final String key = await Registry.instance
+          .get<FileVault>()
+          .put(bytes, extension: (_webFormat ?? _WebFormat.opus).extension);
+      releaseBlobUrl(blobUrl);
+      return key;
+    } on Object {
+      return blobUrl;
+    }
+  }
+
+  /// Erstes Format, das dieser Browser aufnehmen kann.
+  Future<_WebFormat> _pickWebFormat() async {
+    for (final _WebFormat f in _WebFormat.values) {
+      try {
+        if (await _recorder.isEncoderSupported(f.encoder)) {
+          return f;
+        }
+      } on Object {
+        // Nächstes Format versuchen.
+      }
+    }
+    // WAV über die Web-Audio-API kann jeder Browser mit Mikrofon.
+    return _WebFormat.wav;
   }
 
   @override
@@ -151,4 +197,16 @@ class PlatformAudioRecorder implements AudioRecorder {
       _amp.add(norm);
     });
   }
+}
+
+/// Aufnahmeformate im Browser, in der Reihenfolge der Vorliebe: klein zuerst.
+enum _WebFormat {
+  opus(r.AudioEncoder.opus, 'webm'),
+  aac(r.AudioEncoder.aacLc, 'm4a'),
+  wav(r.AudioEncoder.wav, 'wav');
+
+  const _WebFormat(this.encoder, this.extension);
+
+  final r.AudioEncoder encoder;
+  final String extension;
 }

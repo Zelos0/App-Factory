@@ -47,14 +47,15 @@ Alles unten ist im Browser automatisiert geprüft — aber mit einer
       Kaufargument ist „nimm die Präzisions-Engine dazu", nicht „schalt die
       App frei". Tabelle in `docs/baupläne/vox.md` Abschnitt 10.
 
-- [ ] **Audio im Browser überlebt kein Neuladen.** Die Aufnahme liegt im
-      Browser nur als Blob-Adresse vor, die beim Neuladen verfällt;
-      `IndexedDbVault` hält Bytes nur im Arbeitsspeicher. Text, Einträge
-      und Suche überleben (drift/IndexedDB), das Nachhören alter Aufnahmen
-      nicht. Das Fluchttür-ZIP sagt das ehrlich in `fehlend.txt`.
-      Lösung: beim Stopp die Blob-Bytes in den Vault legen und
-      `IndexedDbVault` wirklich auf IndexedDB schreiben lassen. Betrifft
-      alle Sprach-Apps, gehört also in `shared_base`.
+- [x] **Audio im Browser bleibt erhalten** (13.11.2026). Die Aufnahme
+      wandert beim Stopp aus der flüchtigen Blob-Adresse in IndexedDB
+      (`IndexedDbVault` speichert jetzt wirklich). Jedes Segment hat einen
+      Abspielknopf — auch nach Neuladen. Das Fluchttür-ZIP enthält die
+      Originale. Dabei behoben: Die Aufnahme war fest auf Opus/WebM
+      eingestellt; Safari vor iOS 18.4 kann das nicht und hätte den Start
+      mit „opus not supported" verweigert. Jetzt Opus → AAC → WAV, je nachdem,
+      was der Browser kann. (AAC ließ sich hier nicht prüfen — Chromium kann
+      kein AAC aufnehmen; der WAV-Rückfall ist geprüft.)
 
 - [ ] **Überschriftenschrift „Serif" ist nicht eingebunden.**
       `VoxTheme.headlineFamily = 'Serif'` verweist auf keine Schrift im
@@ -78,7 +79,7 @@ an Fähigkeiten, die es an Tag 4 noch nicht gibt:
 | Funktion | Wartet auf |
 |---|---|
 | „Präzision prüfen" — zwei Engines im Vergleich | `capture-core-build` Stufe D (Parakeet) |
-| Abspielgeschwindigkeit 0,5× bis 2,5× | Wiedergabe je Segment im Kern |
+| Abspielgeschwindigkeit 0,5× bis 2,5× | Wiedergabe je Segment steht (`SegmentPlayButton`); Geschwindigkeit fehlt noch |
 | Segmente verschieben, löschen, neu transkribieren | `EntryStore.retranscribe` steht bereits; die Oberfläche dazu fehlt |
 | Ordner und Schlagworte, frei kombinierbar | Schlagworte werden erkannt, aber noch nicht vergeben |
 | Startbildschirm-Widget, Schnelleinstellungen-Kachel | Plattformkanäle, frühestens mit einem Android-Gerät |

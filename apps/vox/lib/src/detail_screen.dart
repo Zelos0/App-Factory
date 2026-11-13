@@ -158,9 +158,14 @@ class _DetailScreenState extends State<DetailScreen> {
               ),
               const SizedBox(width: Tokens.s),
               Text(
-                s.engine,
+                _engineName(s.engine),
                 style: theme.textTheme.labelMedium
                     ?.copyWith(color: VoxTheme.secondary),
+              ),
+              const Spacer(),
+              SegmentPlayButton(
+                mediaPath: s.mediaPath,
+                onUnavailable: _report,
               ),
             ],
           ),
@@ -221,6 +226,14 @@ class _DetailScreenState extends State<DetailScreen> {
       ],
     );
   }
+
+  /// Kennung der Engine in Worten — „platform" sagt niemandem etwas.
+  static String _engineName(String id) => switch (id) {
+        'platform' => 'Spracherkennung',
+        'web' => 'Beispieltext',
+        'parakeet' => 'Präzision',
+        _ => id,
+      };
 
   static String _dateTime(DateTime d) => '${_date(d)} · ${_time(d)}';
 
