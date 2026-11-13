@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
@@ -44,6 +45,27 @@ class PdfRecipient {
 class PdfExport {
   const PdfExport();
 
+  static const String _fonts = 'packages/shared_base/assets/fonts';
+  static pw.ThemeData? _cachedTheme;
+
+  /// Unicode-Schrift statt der eingebauten Helvetica. Die kennt nur
+  /// Latin-1: €, „ “ und — fielen sonst still aus dem PDF — für Apps mit
+  /// Beträgen (KASSA, FAHRTLOG, WERKBUCH) unbrauchbar.
+  static Future<pw.ThemeData> _theme() async {
+    final pw.ThemeData? cached = _cachedTheme;
+    if (cached != null) {
+      return cached;
+    }
+    final ByteData regular =
+        await rootBundle.load('$_fonts/LiberationSans-Regular.ttf');
+    final ByteData bold =
+        await rootBundle.load('$_fonts/LiberationSans-Bold.ttf');
+    return _cachedTheme = pw.ThemeData.withFont(
+      base: pw.Font.ttf(regular),
+      bold: pw.Font.ttf(bold),
+    );
+  }
+
   Future<Uint8List> build({
     required List<EntryWithSegments> entries,
     required PdfRecipient recipient,
@@ -51,6 +73,7 @@ class PdfExport {
     final pw.Document doc = pw.Document(
       title: recipient.headline,
       creator: 'App-Fabrik shared_base',
+      theme: await _theme(),
     );
 
     doc.addPage(

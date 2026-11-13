@@ -14,6 +14,7 @@ export 'src/config/brand.dart';
 export 'src/config/features.dart';
 export 'src/config/registry.dart';
 export 'src/design/tokens.dart';
+export 'src/export/file_share.dart';
 export 'src/export/pdf_export.dart';
 export 'src/export/vault_export.dart';
 export 'src/monetize/ad_safe_area.dart';
