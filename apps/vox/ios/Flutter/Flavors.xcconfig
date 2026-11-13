@@ -1,0 +1,4 @@
+// ERZEUGT von tool/gen_flavors.dart — nicht von Hand ändern.
+FLAVOR=vox
+PRODUCT_BUNDLE_IDENTIFIER=de.zeta.vox
+APP_DISPLAY_NAME=Vox

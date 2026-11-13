@@ -1,0 +1,39 @@
+name: app_fabrik
+
+packages:
+  - packages/**
+  - apps/**
+
+command:
+  bootstrap:
+    runPubGetInParallel: true
+
+scripts:
+  analyze:
+    description: Statische Analyse über alle Pakete, bricht bei jedem Befund.
+    run: melos exec -c 1 -- flutter analyze --fatal-infos --fatal-warnings
+
+  format-check:
+    description: Formatierung prüfen, ohne zu ändern.
+    run: dart format --output=none --set-exit-if-changed .
+
+  test:
+    description: Unit-, Widget- und Golden-Tests aller Pakete mit Tests.
+    run: melos exec -c 1 --dir-exists=test -- flutter test --reporter expanded
+
+  test-golden-update:
+    description: Golden-Referenzbilder neu erzeugen. Nur nach Sichtprüfung aufrufen.
+    run: melos exec -c 1 --dir-exists=test -- flutter test --update-goldens
+
+  build-web:
+    description: Web-Build eines Flavors. Aufruf-  melos run build-web -- vox
+    run: |
+      flutter build web --release \
+        --dart-define=FLAVOR=$1 \
+        --dart-define=STT_ENGINE=web \
+        --base-href=/$1/ \
+        --output=build/web/$1
+
+  check-ad-ids:
+    description: Bricht, wenn eine echte AdMob-ID im Quelltext auftaucht.
+    run: dart run tool/check_ad_ids.dart

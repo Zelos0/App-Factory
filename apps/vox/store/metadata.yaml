@@ -1,0 +1,33 @@
+# Gerüst. Schema identisch zu dem, was store-assets liest und füllt —
+# app-derive legt nur die Form an. Die Texte schreibt store-assets, die
+# Screenshots entstehen aus den Integrationstests von test-loop-free Stufe 1
+# und liegen unter integration_test/screenshots/.
+flavor: vox
+applicationId: de.zeta.vox
+sprachen:
+  - de-DE
+
+titel: ""              # max 30 Zeichen — Vorgabe Steckbrief: VOX — Sprachnotizen offline
+kurzbeschreibung: ""   # max 80 Zeichen — Vorgabe: Sprich statt tippen. Offline transkribiert. Einmal zahlen, kein Abo.
+langbeschreibung: ""   # max 4000 Zeichen
+
+kategorie: ""
+schlagworte: []
+
+datenschutz:
+  url: ""                       # trägt store-assets nach
+  quelle: store/datenschutz.md
+  erhebt_daten: false
+  gibt_daten_weiter: false
+  hinweis: Verarbeitung ausschliesslich auf dem Geraet, kein Konto, kein Server.
+
+screenshots:
+  quelle: integration_test/screenshots
+  auswahl:
+    - 01-start
+    - 02-aufnahme-laeuft
+    - 03-erster-eintrag
+    - 04-erweitert
+    - 05-liste
+    - 06-detail
+  hintergrund: '101018'

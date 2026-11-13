@@ -1,0 +1,11 @@
+// ERZEUGT von tool/gen_flavors.dart — nicht von Hand ändern.
+android {
+    flavorDimensions "app"
+    productFlavors {
+        vox {
+            dimension "app"
+            applicationId "de.zeta.vox"
+            resValue "string", "app_name", "Vox"
+        }
+    }
+}
