@@ -27,8 +27,8 @@ Safari über *Teilen → Zum Home-Bildschirm* sieht Vox aus wie eine echte App.
 |---|---|
 | **Fundament** | Melos-Monorepo, `shared_base`, `capture_core`, `lens_core` (Gerüst), CI, Web-Deploy |
 | **Apps** | 1 von 26: **Vox** — Sprachnotizen, die sich selbst ordnen |
-| **Prüfungen** | Analyse ohne Befund, 130 Tests grün, Werbe-ID-Wächter — lokal und in der CI identisch (Flutter 3.24.5) |
-| **Nächster Schritt** | `apps/vox/OFFEN.md` — dann WF-02 für App 2 |
+| **Prüfungen** | Analyse ohne Befund, 154 Tests grün, 6 Golden-Bilder, Integrationstest im echten Chrome, Werbe-ID-Wächter — lokal und in der CI identisch (Flutter 3.24.5) |
+| **Nächster Schritt** | iPhone-Prüfung aus `apps/vox/OFFEN.md`, dann WF-02 für App 2 |
 
 ### Was Vox heute im Browser kann
 
@@ -36,6 +36,8 @@ Safari über *Teilen → Zum Home-Bildschirm* sieht Vox aus wie eine echte App.
   während der Aufnahme mit (Safari ab iOS 14.5, Chrome, Edge). Pausen beim
   Sprechen sind kein Problem. Scheitert die Erkennung, bleibt die Aufnahme
   trotzdem gespeichert.
+- **Nachhören.** Jedes Segment hat einen Abspielknopf. Die Aufnahmen liegen
+  dauerhaft im Browser (IndexedDB) und überleben Neuladen und Schließen.
 - **Einträge erweitern** — das ➕ neben einem Eintrag hängt eine Aufnahme an.
 - **Suchen** über alle Transkripte, **Auswertung** über alle Einträge.
 - **Exportieren** als Markdown, PDF, KI-Kontextbündel, JSON oder Text —
@@ -53,6 +55,9 @@ dart pub get && dart run melos bootstrap
 dart run melos run analyze
 dart run melos run test
 dart run melos run build-web -- vox    # Ergebnis in build/web/vox
+
+# Hauptablauf im Browser mit Store-Screenshots (braucht chromedriver :4444)
+dart run melos run integration -- vox
 ```
 
 Melos immer über `dart run melos …`, nie global installiert.
