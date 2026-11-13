@@ -27,7 +27,7 @@ Safari über *Teilen → Zum Home-Bildschirm* sieht Vox aus wie eine echte App.
 |---|---|
 | **Fundament** | Melos-Monorepo, `shared_base`, `capture_core`, `lens_core` (Gerüst), CI, Web-Deploy |
 | **Apps** | 1 von 26: **Vox** — Sprachnotizen, die sich selbst ordnen |
-| **Prüfungen** | Analyse ohne Befund, 127 Tests grün, Werbe-ID-Wächter — lokal und in der CI identisch (Flutter 3.24.5) |
+| **Prüfungen** | Analyse ohne Befund, 130 Tests grün, Werbe-ID-Wächter — lokal und in der CI identisch (Flutter 3.24.5) |
 | **Nächster Schritt** | `apps/vox/OFFEN.md` — dann WF-02 für App 2 |
 
 ### Was Vox heute im Browser kann
