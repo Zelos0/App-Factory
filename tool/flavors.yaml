@@ -1,7 +1,12 @@
-# Muster: <flavor>: { label, core, applicationId }
-# core: capture | lens | both
+# Muster: <flavor>: { label, core, applicationId, color, tagline }
+# core:    capture | lens | both
+# color:   Primärfarbe aus dem Theme der App, #RRGGBB — färbt Icon und
+#          Browserleiste (tool/gen_web_meta.dart)
+# tagline: ein Satz, steht im Manifest, in der Übersicht und in Suchtreffern
 flavors:
   vox:
     label: Vox
     core: capture
     applicationId: de.zeta.vox
+    color: "#D97706"
+    tagline: Sprachnotizen, die sich selbst ordnen

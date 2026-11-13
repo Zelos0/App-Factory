@@ -5,6 +5,58 @@ ein gemeinsamer Unterbau und sechsundzwanzig dünne Hüllen. Dieses Paket enthä
 die elf Skills und vier Workflows, mit denen Claude Code diese Fabrik baut —
 von einem iPhone 14 aus, mit einem Budget von null Euro.
 
+[![ci](https://github.com/Zelos0/App-Factory/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Zelos0/App-Factory/actions/workflows/ci.yml)
+[![web](https://github.com/Zelos0/App-Factory/actions/workflows/web.yml/badge.svg?branch=main)](https://github.com/Zelos0/App-Factory/actions/workflows/web.yml)
+
+## Ausprobieren — auf dem iPhone, jetzt
+
+**https://zelos0.github.io/App-Factory/**
+
+Dort liegen alle fertigen Apps als Web-App. Jeder Push auf `main` baut sie neu
+und veröffentlicht sie automatisch (`.github/workflows/web.yml`). Tipp: In
+Safari über *Teilen → Zum Home-Bildschirm* sieht Vox aus wie eine echte App.
+
+> **Einmalig nötig, falls die Adresse 404 meldet:** Repository →
+> *Settings* → *Pages* → bei *Build and deployment* unter *Source*
+> „Deploy from a branch" wählen → Branch **`gh-pages`**, Ordner **`/ (root)`**
+> → *Save*. Nach ein bis zwei Minuten ist die Seite da. Danach nie wieder.
+
+## Stand
+
+| | |
+|---|---|
+| **Fundament** | Melos-Monorepo, `shared_base`, `capture_core`, `lens_core` (Gerüst), CI, Web-Deploy |
+| **Apps** | 1 von 26: **Vox** — Sprachnotizen, die sich selbst ordnen |
+| **Prüfungen** | Analyse ohne Befund, 127 Tests grün, Werbe-ID-Wächter — lokal und in der CI identisch (Flutter 3.24.5) |
+| **Nächster Schritt** | `apps/vox/OFFEN.md` — dann WF-02 für App 2 |
+
+### Was Vox heute im Browser kann
+
+- **Aufnehmen und mitschreiben.** Die Spracherkennung des Browsers hört
+  während der Aufnahme mit (Safari ab iOS 14.5, Chrome, Edge). Pausen beim
+  Sprechen sind kein Problem. Scheitert die Erkennung, bleibt die Aufnahme
+  trotzdem gespeichert.
+- **Einträge erweitern** — das ➕ neben einem Eintrag hängt eine Aufnahme an.
+- **Suchen** über alle Transkripte, **Auswertung** über alle Einträge.
+- **Exportieren** als Markdown, PDF, KI-Kontextbündel, JSON oder Text —
+  auf dem Telefon über das Teilen-Menü (In Dateien sichern, AirDrop …),
+  am Rechner als Download. Jedes Textformat auch per Kopier-Symbol.
+- **Fluchttür:** alles als ZIP, dauerhaft kostenlos.
+- Kein Konto, kein Server, kein Tracking. Alles bleibt im Browser.
+
+### Lokal bauen
+
+```bash
+# Flutter 3.24.5 — dieselbe Version wie die CI
+export PATH=/pfad/zu/flutter/bin:$PATH
+dart pub get && dart run melos bootstrap
+dart run melos run analyze
+dart run melos run test
+dart run melos run build-web -- vox    # Ergebnis in build/web/vox
+```
+
+Melos immer über `dart run melos …`, nie global installiert.
+
 ## Was hier drin ist
 
 ```

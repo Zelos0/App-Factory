@@ -6,7 +6,7 @@
 #
 # Die Paketliste steht weiterhin in melos.yaml, nicht hier.
 name: app_fabrik
-description: Wurzel-Paket der App-Fabrik. Traegt nur die Melos-Installation.
+description: Wurzel-Paket der App-Fabrik. Traegt Melos und die Werkzeuge unter tool/.
 publish_to: none
 version: 0.1.0
 
@@ -14,4 +14,6 @@ environment:
   sdk: ">=3.5.0 <4.0.0"
 
 dev_dependencies:
+  # Zeichnet die Web-Icons aller Apps (tool/gen_web_meta.dart).
+  image: ^4.2.0
   melos: ^6.3.2

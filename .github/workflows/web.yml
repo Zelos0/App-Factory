@@ -82,6 +82,9 @@ jobs:
           echo "list=$list" >> "$GITHUB_OUTPUT"
           echo "Gefundene Flavors: $list"
 
+      - name: Manifest, Titel und Icons aus tool/flavors.yaml
+        run: dart run tool/gen_web_meta.dart
+
       - name: Alle Flavors bauen
         run: |
           mkdir -p build/web

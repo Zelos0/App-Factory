@@ -1,7 +1,40 @@
 # Offene Punkte — vox
 
-Stand: Tag 4 abgeschlossen (`konzept-zu-bauplan`, `app-derive`).
+Stand: 13.11.2026 — Tag 4 abgeschlossen, Tag 5 zum größeren Teil.
 Ein notierter offener Punkt ist verantwortbar, ein stiller nicht.
+
+## Zuerst: einmal auf dem iPhone prüfen
+
+Alles unten ist im Browser automatisiert geprüft — aber mit einer
+*simulierten* Spracherkennung. Was nur ein echtes iPhone zeigt:
+
+1. https://zelos0.github.io/App-Factory/ öffnen (falls 404: README,
+   Abschnitt „Ausprobieren", einmal GitHub Pages einschalten).
+2. Vox → Aufnehmen → Mikrofon erlauben → einen Satz sprechen, zwei Sekunden
+   Pause, noch einen Satz → Fertig. **Erwartet:** beide Sätze im Eintrag.
+3. Falls stattdessen „Das Mikrofon war für die Erkennung belegt" erscheint:
+   Safari gibt das Mikrofon nicht gleichzeitig an Aufnahme UND Erkennung.
+   Dann bitte melden — die Lösung wäre, im Browser nur die Erkennung laufen
+   zu lassen (ohne Audiodatei), siehe unten „Audio im Browser".
+4. Einstellungen → PDF → das Teilen-Menü muss aufgehen.
+5. Teilen → Zum Home-Bildschirm → orangefarbenes Icon mit Schallwelle.
+
+## Am 13.11.2026 erledigt
+
+- [x] **CI läuft und ist grün** — zum ersten Mal überhaupt. Analyse,
+      Format, Werbe-ID-Wächter und 127 Tests lokal und auf GitHub mit
+      derselben Flutter-Version (3.24.5, in allen Workflows festgenagelt).
+- [x] **Echte Spracherkennung.** Vorher erzeugte Vox nirgends Text: im
+      Browser lief zwangsweise der Stub, auf dem Gerät warf die
+      Plattform-Engine immer einen Fehler. Jetzt hört `PlatformSttEngine`
+      während der Aufnahme mit — im Browser über die Web Speech API.
+- [x] **Export als Datei** — Teilen-Menü auf dem Telefon, Download am
+      Rechner. Kopieren bleibt als Zweitweg.
+- [x] **PDF verdrahtet**, mit eingebetteter Unicode-Schrift (€ „ “ —
+      fielen vorher still heraus).
+- [x] **Fluchttür als ZIP** angeschlossen.
+- [x] **Icons im Build** (fehlten komplett), CanvasKit ohne Google-CDN,
+      eigenes App-Icon und Manifest statt Flutter-Vorlage.
 
 ## Aus Tag 4 offen geblieben
 
@@ -14,18 +47,19 @@ Ein notierter offener Punkt ist verantwortbar, ein stiller nicht.
       Kaufargument ist „nimm die Präzisions-Engine dazu", nicht „schalt die
       App frei". Tabelle in `docs/baupläne/vox.md` Abschnitt 10.
 
-- [ ] **Der Export läuft über die Zwischenablage, nicht über Dateien.**
-      Der Web-Build hat keinen Dateidialog. Statt einer halben Lösung landet
-      der Export in der Zwischenablage. Der Datei-Export und das ZIP der
-      Fluchttür (`VaultExport.toZip`) kommen mit `test-loop-free` Stufe 1.
-      Der Inhalt ist bereits vollständig — nur der Weg nach draußen fehlt.
+- [ ] **Audio im Browser überlebt kein Neuladen.** Die Aufnahme liegt im
+      Browser nur als Blob-Adresse vor, die beim Neuladen verfällt;
+      `IndexedDbVault` hält Bytes nur im Arbeitsspeicher. Text, Einträge
+      und Suche überleben (drift/IndexedDB), das Nachhören alter Aufnahmen
+      nicht. Das Fluchttür-ZIP sagt das ehrlich in `fehlend.txt`.
+      Lösung: beim Stopp die Blob-Bytes in den Vault legen und
+      `IndexedDbVault` wirklich auf IndexedDB schreiben lassen. Betrifft
+      alle Sprach-Apps, gehört also in `shared_base`.
 
-- [ ] **PDF-Export ist zugeschnitten, aber nicht verdrahtet.**
-      `VoxExport.pdfRecipientFor(entries)` liefert den Parametersatz —
-      Protokoll-Optik, Uhrzeit je Segment, Zeitraum als Untertitel,
-      Schlagworte im Fuß —, `PdfExport.build` erzeugt daraus die Datei.
-      Der Knopf dafür wartet auf denselben Datei-Weg wie oben. Er ist
-      kostenlos — bei VOX kostet kein Export.
+- [ ] **Überschriftenschrift „Serif" ist nicht eingebunden.**
+      `VoxTheme.headlineFamily = 'Serif'` verweist auf keine Schrift im
+      Build; Flutter fällt still auf die Standardschrift zurück. Entweder
+      eine Serifenschrift (OFL) mitliefern oder die Zeile streichen.
 
 - [ ] **Golden-Tests fehlen noch.** Sechs Bilder (Start, Liste, Detail — je
       hell und dunkel) gehören zu Tag 5. `app-derive` legt nur das
@@ -61,19 +95,3 @@ an Fähigkeiten, die es an Tag 4 noch nicht gibt:
       Kern, weil KASSA, RITUS, FAHRTLOG, WERKBUCH und ANAMNESE sie sonst
       je einzeln nachbauen würden. `app-derive` weist ab sofort darauf hin,
       dass sein Betrags-Beispiel Vorlage ist und nicht Kopiervorlage.
-
-## Nicht behoben, weil hier nicht behebbar
-
-- [ ] **`melos run analyze`, `melos run test` und `dart format` liefen für
-      diesen Stand NICHT lokal.** Die Sandbox dieser Sitzung erreicht weder
-      `storage.googleapis.com` noch `dl.google.com` noch `pub.dev` — es gibt
-      also kein Flutter und kein Dart. Die Interpreter-Regeln wurden
-      stattdessen als 1:1-Portierung nachgerechnet (alle zwölf Testfälle
-      grün). Der erste CI-Lauf nach dem Push ist damit der erste echte
-      Analyse- und Formatlauf. **Erwartbar ist genau ein Befund: Formatierung.**
-      Erste Gegenmaßnahme, falls `format-check` rot wird:
-
-      ```
-      dart format apps/vox lib docs
-      git commit -am "style: dart format"
-      ```

@@ -33,8 +33,10 @@ void main() {
       'both' => 'Sprach- und Kamera-Kern',
       _ => '',
     };
+    final String tagline = _esc(meta[f]?['tagline']?.replaceAll('"', '') ?? '');
+    final String sub = tagline.isNotEmpty ? tagline : kern;
     items.writeln('    <li><a href="$f/"><strong>$label</strong>'
-        '${kern.isEmpty ? '' : '<span>$kern</span>'}</a></li>');
+        '${sub.isEmpty ? '' : '<span>$sub</span>'}</a></li>');
   }
 
   final String stamp = DateTime.now()

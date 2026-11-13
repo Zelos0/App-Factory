@@ -124,6 +124,8 @@ Datei: `tool/flavors.yaml` — anhängen, nicht ersetzen.
     label: <Label>
     core: <capture|lens|both>
     applicationId: de.zeta.<flavor>
+    color: "#RRGGBB"     # = primary aus Schritt 4, Theme
+    tagline: <ein Satz aus dem Steckbrief, ohne Punkt am Ende>
 ```
 
 Dann:
@@ -131,6 +133,10 @@ Dann:
 ```bash
 dart run tool/gen_flavors.dart
 ```
+
+`color` und `tagline` sind Pflicht: Aus ihnen erzeugt Schritt 11 Manifest,
+Seitentitel und Icons der Web-App. Fehlen sie, bekommt die App ein graues
+Icon und nur ihren Namen als Beschreibung.
 
 Namenskonventionen aus `ARCHITEKTUR.md` Abschnitt 9 sind bindend:
 Flavor kleingeschrieben, Paket-ID `de.zeta.<flavor>`, Verzeichnis
@@ -1124,6 +1130,20 @@ screenshots:
   hintergrund: '101018'
 ```
 
+Gesicht der Web-App — Manifest, Seitentitel, Farbe der Browserleiste und
+alle Icons (Home-Bildschirm, Tab, Android maskable) — aus `tool/flavors.yaml`:
+
+```bash
+dart run tool/gen_web_meta.dart <flavor>
+```
+
+Ohne diesen Schritt trägt die App die Flutter-Vorlage: Name in
+Kleinbuchstaben, „A new Flutter project." und das blaue Flutter-Logo. Das
+Icon zeigt das Zeichen des Kerns — Schallwelle (capture), Sucher (lens),
+beides (both) — in der App-Farbe. `web.yml` ruft den Generator vor jedem
+Build ohnehin noch einmal auf; das Ergebnis wird trotzdem eingecheckt, damit
+lokale Builds gleich aussehen.
+
 Die Web-Demo-Übersicht braucht **keine** Änderung: `tool/gen_web_index.dart`
 liest das Verzeichnis `build/web` und nimmt jeden Flavor auf, den `web.yml`
 gebaut hat. Der Eintrag entsteht also allein dadurch, dass der Flavor in
@@ -1219,7 +1239,8 @@ Der Skill stoppt und fragt, statt zu raten, wenn:
 
 ## Fertig, wenn
 
-- [ ] `tool/flavors.yaml` enthält den neuen Flavor mit `applicationId de.zeta.<flavor>`
+- [ ] `tool/flavors.yaml` enthält den neuen Flavor mit `applicationId de.zeta.<flavor>`, `color` und `tagline`
+- [ ] `apps/<flavor>/web/manifest.json` trägt Label und Tagline, nicht „A new Flutter project."
 - [ ] `dart run tool/gen_flavors.dart` lief und erzeugte Gradle- und Xcode-Fragmente
 - [ ] `apps/<flavor>/` existiert mit `lib/`, `test/`, `integration_test/`, `store/`
 - [ ] `apps/<flavor>/web/sqlite3.wasm` und `drift_worker.js` liegen vor
