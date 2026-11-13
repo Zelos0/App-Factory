@@ -98,4 +98,15 @@ void main() {
       expect(await vault.get(path), isNull);
     });
   });
+
+  test('Mit fester Uhr sind alle Zeitstempel fest', () async {
+    final DateTime fest = DateTime.utc(2026, 3, 14, 9, 41);
+    final EntryStore fixed = EntryStore(db, type: 'test', clock: () => fest);
+    final Entry e = await fixed.createEntry(title: 'Uhr');
+    final Segment s =
+        await fixed.appendSegment(e.id, transcript: 'x', engine: 'web');
+    expect(e.createdAt, fest);
+    expect(s.createdAt, fest);
+    expect((await fixed.byId(e.id))!.entry.updatedAt.toUtc(), fest);
+  });
 }

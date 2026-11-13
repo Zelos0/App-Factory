@@ -146,6 +146,34 @@ Future<String?> _leseManifest() async {
 Referenzbilder gelten **ausschließlich für Linux**, weil dort verglichen wird —
 siehe Abbruchkriterium 4.
 
+#### 0.2a — Erfahrung aus vox (13.11.2026): echte Bildschirme statt Attrappen
+
+Die Vorlage in 0.2 fotografiert **nachgebaute** Bildschirme. Das fängt keine
+Layoutfehler der echten `HomeScreen` und lief bei vox an mehreren echten
+Fehlern vorbei. vox macht es deshalb so — **Vorbild für alle weiteren Apps:**
+`apps/vox/test/support/fake_store.dart` und
+`apps/vox/test/golden/screens_golden_test.dart`.
+
+- Echter `EntryStore` auf `NativeDatabase.memory()` mit fester Uhr
+  (`EntryStore(db, type: …, clock: () => kFixedNow)`). Deterministisch wie
+  eine Attrappe, aber die echten Bildschirme mit echten Daten.
+- Bildschirme nehmen eine Recorder-Attrappe an (`HomeScreen(recorder: …)`),
+  sonst springt im Test das Mikrofon-Plugin an.
+- Roboto lädt `flutter_test_config.dart` aus
+  `$FLUTTER_ROOT/bin/cache/artifacts/material_fonts/` — sie steht nicht im
+  FontManifest, ohne sie zeigen Golden-Bilder Kästchen.
+- **Drei Fallen mit drift, alle drei kosten sonst Stunden:**
+  1. Datenbank öffnen und befüllen in `tester.runAsync(…)`, nicht in
+     `setUp` oder direkt im Test.
+  2. Nie `pumpAndSettle`: Ein Ladekreisel dreht ewig, der Test hängt bis
+     zum Timeout von zehn Minuten. Begrenzt pumpen — abwechselnd
+     `runAsync(kurze Pause)` und `pump(50 ms)`.
+  3. Abbauen am **Ende des Testkörpers**, in dieser Reihenfolge:
+     `pumpWidget(SizedBox())`, `pump(1 s)`, `runAsync(db.close)`. In
+     `addTearDown` ist es zu spät (Flutter prüft hängende Timer vorher),
+     und ohne das `pump` wartet `close()` ewig auf einen Aufräum-Timer von
+     drift, der nur in Testzeit feuert.
+
 #### 0.2 — `fake_store.dart` — die drei Funktionen, die `app-derive` erwartet
 
 `test/golden/home_golden_test.dart` importiert `../support/fake_store.dart` und

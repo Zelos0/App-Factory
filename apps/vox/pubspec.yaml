@@ -16,6 +16,7 @@ dependencies:
     path: ../../packages/shared_base
 
 dev_dependencies:
+  drift: ^2.20.0
   flutter_lints: ^4.0.0
   flutter_test:
     sdk: flutter

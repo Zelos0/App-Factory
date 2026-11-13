@@ -9,9 +9,13 @@ import 'models.dart';
 /// Einzige Tür zu den Daten. Kein Kern und keine App greift direkt auf
 /// [AppDatabase] zu.
 class EntryStore {
-  EntryStore(this._db, {required this.type});
+  /// [clock] nur für Tests und Golden-Bilder: Mit fester Uhr sehen
+  /// Zeitstempel an jedem Tag gleich aus.
+  EntryStore(this._db, {required this.type, DateTime Function()? clock})
+      : _now = clock ?? DateTime.now;
 
   final AppDatabase _db;
+  final DateTime Function() _now;
 
   /// Flavor-Kennung. Trennt die Einträge mehrerer Apps in derselben Datei.
   final String type;
@@ -20,7 +24,7 @@ class EntryStore {
 
   /// Legt einen leeren Eintrag an. Segmente kommen per [appendSegment] dazu.
   Future<Entry> createEntry({String? title, List<String>? tags}) async {
-    final DateTime now = DateTime.now();
+    final DateTime now = _now();
     final Entry entry = Entry(
       id: _uuid.v4(),
       type: type,
@@ -49,7 +53,7 @@ class EntryStore {
       mediaPath: mediaPath,
       transcript: transcript,
       engine: engine,
-      createdAt: DateTime.now(),
+      createdAt: _now(),
     );
     await _db.into(_db.segments).insert(
           SegmentsCompanion.insert(
@@ -95,7 +99,7 @@ class EntryStore {
         .write(
       EntriesCompanion(
         data: Value<String>(jsonEncode(data)),
-        updatedAt: Value<DateTime>(DateTime.now()),
+        updatedAt: Value<DateTime>(_now()),
       ),
     );
   }
@@ -180,7 +184,7 @@ class EntryStore {
   Future<void> _touch(String entryId) async {
     await (_db.update(_db.entries)
           ..where(($EntriesTable t) => t.id.equals(entryId)))
-        .write(EntriesCompanion(updatedAt: Value<DateTime>(DateTime.now())));
+        .write(EntriesCompanion(updatedAt: Value<DateTime>(_now())));
   }
 
   Future<void> _reindex(Segment s) async {

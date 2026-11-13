@@ -14,16 +14,20 @@ import 'vox_theme.dart';
 /// Leerfläche, die letzten Einträge als flache Zeilen ohne Rahmen, unten
 /// mittig der Aufnahmeknopf. Kein Willkommenstext, keine Tour.
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({required this.store, super.key});
+  const HomeScreen({required this.store, this.recorder, super.key});
 
   final EntryStore store;
+
+  /// Ohne Angabe das Mikrofon des Geräts. Tests geben eine Attrappe.
+  final AudioRecorder? recorder;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final AudioRecorder _recorder = PlatformAudioRecorder();
+  late final AudioRecorder _recorder =
+      widget.recorder ?? PlatformAudioRecorder();
   final VoxInterpreter _interpreter = const VoxInterpreter();
   final TextEditingController _query = TextEditingController();
 

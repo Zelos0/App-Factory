@@ -63,11 +63,12 @@ Alles unten ist im Browser automatisiert geprüft — aber mit einer
       dieses Namens gibt es nicht, Flutter fiel still auf die Standardschrift
       zurück. Titelgrößen um 2 pt angehoben (kleinere x-Höhe).
 
-- [ ] **Golden-Tests fehlen noch.** Sechs Bilder (Start, Liste, Detail — je
-      hell und dunkel) gehören zu Tag 5. `app-derive` legt nur das
-      Verzeichnis an; die Referenzbilder und `test/support/fake_store.dart`
-      erzeugt `test-loop-free` Stufe 0. **Absichtlich nicht vorab
-      eingecheckt:** Golden-Tests ohne Referenzbilder brechen die CI.
+- [x] **Golden-Tests** (13.11.2026): Start, Liste, Detail — je hell und
+      dunkel, unter `test/golden/goldens/`. Sie zeigen die ECHTEN
+      Bildschirme mit echten Schriften (Crimson Pro, Roboto, Icons) und
+      einer In-Memory-Datenbank mit fester Uhr — nicht die Attrappen aus
+      der Skill-Vorlage. Sichtgeprüft. Neu erzeugen nur nach Sichtprüfung:
+      `dart run melos run test-golden-update`.
 
 - [ ] **Integrationstest fehlt noch.** `integration_test/` ist angelegt,
       der Hauptablauf kommt mit `test-loop-free` Stufe 1.
