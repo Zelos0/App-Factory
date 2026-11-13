@@ -52,8 +52,10 @@ void main() {
     });
 
     test('der Satz, an dem sich alles misst', () {
-      expect(SpokenNumbers.parseAmount('zweiundzwanzig fünfzig bei Rewe'),
-          22.50);
+      expect(
+        SpokenNumbers.parseAmount('zweiundzwanzig fünfzig bei Rewe'),
+        22.50,
+      );
     });
 
     test('Engine-Fehler: "zwo" statt "zwei"', () {

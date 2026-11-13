@@ -19,6 +19,10 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+          # Festgenagelt: lokal (EINSPIELEN.md), CI und die pubspec.lock-Dateien
+          # muessen dieselbe Version sehen. Neuere Dart-Versionen starten
+          # melos 6.x nicht mehr. Anheben nur bewusst, zusammen mit melos.
+          flutter-version: 3.24.5
           cache: true
 
       # Melos ab 3.0.0 muss lokal neben melos.yaml installiert sein.

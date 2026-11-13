@@ -89,7 +89,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             subtitle: Text(Registry.instance.get<SttEngine>().id),
           ),
           const ConsentTile(),
-
           const Divider(),
           Padding(
             padding: const EdgeInsets.fromLTRB(
@@ -143,7 +142,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               }),
             ),
           ),
-
           const Divider(),
           Padding(
             padding: const EdgeInsets.fromLTRB(
@@ -163,12 +161,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             enabled: !_busy,
             onTap: () => unawaited(
-              _copy('Fluchttür-Export', () async => _export.escapeHatch(
-                    await _all(),
-                  )),
+              _copy(
+                'Fluchttür-Export',
+                () async => _export.escapeHatch(
+                  await _all(),
+                ),
+              ),
             ),
           ),
-
           const Divider(),
           Padding(
             padding: const EdgeInsets.all(Tokens.m),

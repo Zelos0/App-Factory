@@ -11,7 +11,7 @@ command:
 scripts:
   analyze:
     description: Statische Analyse über alle Pakete, bricht bei jedem Befund.
-    run: melos exec -c 1 -- flutter analyze --fatal-infos --fatal-warnings
+    run: dart run melos exec -c 1 -- flutter analyze --fatal-infos --fatal-warnings
 
   format-check:
     description: Formatierung prüfen, ohne zu ändern.
@@ -19,11 +19,11 @@ scripts:
 
   test:
     description: Unit-, Widget- und Golden-Tests aller Pakete mit Tests.
-    run: melos exec -c 1 --dir-exists=test -- flutter test --reporter expanded
+    run: dart run melos exec -c 1 --dir-exists=test -- flutter test --reporter expanded
 
   test-golden-update:
     description: Golden-Referenzbilder neu erzeugen. Nur nach Sichtprüfung aufrufen.
-    run: melos exec -c 1 --dir-exists=test -- flutter test --update-goldens
+    run: dart run melos exec -c 1 --dir-exists=test -- flutter test --update-goldens
 
   build-web:
     description: Web-Build eines Flavors. Aufruf-  melos run build-web -- vox

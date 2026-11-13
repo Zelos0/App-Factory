@@ -133,8 +133,7 @@ class VoxExport {
   /// Datum groß, die Segmentkette chronologisch mit Uhrzeit, Transkript in
   /// Lesetypografie. Im Fuß stehen die häufigsten Schlagworte — damit der
   /// Ausdruck wiederauffindbar ist, ohne ihn zu lesen.
-  PdfRecipient pdfRecipientFor(List<EntryWithSegments> entries) =>
-      PdfRecipient(
+  PdfRecipient pdfRecipientFor(List<EntryWithSegments> entries) => PdfRecipient(
         name: 'Eigenes Archiv',
         headline: 'Sprachnotizen',
         subline: _range(entries),

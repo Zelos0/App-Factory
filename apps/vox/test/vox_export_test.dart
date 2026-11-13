@@ -112,8 +112,7 @@ void main() {
       final List<dynamic> entries = map['eintraege'] as List<dynamic>;
       expect(entries.length, 1);
 
-      final Map<String, dynamic> first =
-          entries.first as Map<String, dynamic>;
+      final Map<String, dynamic> first = entries.first as Map<String, dynamic>;
       final List<dynamic> segments = first['segmente'] as List<dynamic>;
       expect(segments.length, 2);
       expect(
@@ -149,9 +148,11 @@ void main() {
     });
 
     test('leere Datenlage liefert eine gültige, leere Datei', () {
-      final Object? decoded = jsonDecode(export.escapeHatch(
-        <EntryWithSegments>[],
-      ));
+      final Object? decoded = jsonDecode(
+        export.escapeHatch(
+          <EntryWithSegments>[],
+        ),
+      );
       expect((decoded! as Map<String, dynamic>)['eintraege'], isEmpty);
     });
   });

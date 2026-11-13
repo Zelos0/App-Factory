@@ -142,8 +142,8 @@ class _DetailScreenState extends State<DetailScreen> {
         const SizedBox(height: Tokens.xs),
         Text(
           _dateTime(e.entry.createdAt),
-          style: theme.textTheme.labelMedium
-              ?.copyWith(color: VoxTheme.secondary),
+          style:
+              theme.textTheme.labelMedium?.copyWith(color: VoxTheme.secondary),
         ),
         const SizedBox(height: Tokens.l),
 
@@ -176,8 +176,8 @@ class _DetailScreenState extends State<DetailScreen> {
         if (r.confidence >= 0.5) ...<Widget>[
           Text(
             'Erkannt',
-            style: theme.textTheme.labelLarge
-                ?.copyWith(color: VoxTheme.secondary),
+            style:
+                theme.textTheme.labelLarge?.copyWith(color: VoxTheme.secondary),
           ),
           const SizedBox(height: Tokens.s),
           if (r.keywords.isNotEmpty)

@@ -9,6 +9,7 @@
 ///   monetize-modul     ergänzt die monetize-Exporte
 ///   app-derive         schiebt Geteiltes aus Apps hierher (src/text/)
 library shared_base;
+
 export 'src/config/brand.dart';
 export 'src/config/features.dart';
 export 'src/config/registry.dart';

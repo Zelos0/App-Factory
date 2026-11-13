@@ -69,8 +69,8 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     final SttEngine stt = Registry.instance.get<SttEngine>();
-    final String entryId = _activeEntryId ??
-        (await widget.store.createEntry(title: null)).id;
+    final String entryId =
+        _activeEntryId ?? (await widget.store.createEntry(title: null)).id;
 
     String? text;
     try {

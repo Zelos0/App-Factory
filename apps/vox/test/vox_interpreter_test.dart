@@ -53,7 +53,7 @@ void main() {
       expect(
         r.title,
         'Der Termin beim Steuerberater ist verschoben worden auf nächste '
-            'Woche.',
+        'Woche.',
       );
       expect(r.wordCount, 10);
     });
@@ -63,8 +63,11 @@ void main() {
         'also ähm ich wollte sagen dass das Projekt Projekt fertig ist',
       );
       expect(r.title, isNotNull);
-      expect(r.title!.startsWith('ich wollte'), isTrue,
-          reason: 'Füllwörter "also" und "ähm" müssen weg sein');
+      expect(
+        r.title!.startsWith('ich wollte'),
+        isTrue,
+        reason: 'Füllwörter "also" und "ähm" müssen weg sein',
+      );
       expect(
         r.keywords.map((String k) => k.toLowerCase()),
         contains('projekt'),
@@ -216,8 +219,11 @@ void main() {
 
     test('Zeitpunkt nur, wenn eine Uhr gereicht wird', () {
       const String text = 'gestern beim Kunden gewesen';
-      expect(interpreter.parse(text).occurredAt, isNull,
-          reason: 'ohne now bleibt der Interpreter deterministisch');
+      expect(
+        interpreter.parse(text).occurredAt,
+        isNull,
+        reason: 'ohne now bleibt der Interpreter deterministisch',
+      );
       expect(
         interpreter.parse(text, now: DateTime(2026, 8, 11)).occurredAt,
         DateTime(2026, 8, 10),
