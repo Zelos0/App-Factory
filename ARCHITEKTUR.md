@@ -108,9 +108,18 @@ abstract class SttEngine {
   bool get isAvailable;
   String get id;
 }
-// WebStubSttEngine     hinterlegter Beispieltext — Web-Build
-// PlatformSttEngine    Android SpeechRecognizer / iOS Speech — Gratis-Stufe
+// WebStubSttEngine     hinterlegter Beispieltext — Prüfliste, Tests
+// PlatformSttEngine    Android SpeechRecognizer / iOS Speech /
+//                      Web Speech API im Browser — Gratis-Stufe
 // ParakeetSttEngine    sherpa-onnx, Modell ~640 MB, Nachladen — Pro-Stufe
+
+// Live-Engines hören am Mikrofon mit, statt eine Datei zu lesen.
+// PlatformAudioRecorder startet und stoppt sie mit der Aufnahme; danach
+// liefert transcribe() das Mitgehörte. Apps sehen keinen Unterschied.
+abstract interface class LiveSttEngine implements SttEngine {
+  Future<void> beginLive({String lang, bool append});
+  Future<void> endLive();
+}
 
 abstract class ScanPipeline {
   Future<ScanResult> process(Uint8List image, ScanMode mode);
@@ -149,9 +158,14 @@ Apps sehen ausschließlich die Schnittstellen.
 
 | Stufe | Engine | Größe | Wo verfügbar |
 |---|---|---|---|
-| Web | `WebStubSttEngine` | 0 | nur Testkanal |
-| Gratis | Plattform-Engine des Betriebssystems | 0 | Android, iOS |
+| Test | `WebStubSttEngine` | 0 | `STT_ENGINE=web` — Prüfliste, Integrationstest, Branch-Vorschauen |
+| Gratis | `PlatformSttEngine` — Erkenner des Betriebssystems bzw. Browsers | 0 | Android, iOS, Chrome, Edge, Safari ab iOS 14.5 |
 | Pro | Parakeet TDT 0.6B v3 int8 via sherpa-onnx | ~640 MB | nach Nachladen |
+
+Die Gratis-Stufe hört während der Aufnahme mit. Scheitert sie (kein
+Internet, keine Berechtigung, Browser ohne Erkennung), wird die Aufnahme
+trotzdem gespeichert — ohne Text, mit einer Meldung in Klartext. Eine
+Aufnahme geht nie an der Erkennung verloren.
 
 Das Modell wird **niemals** ins App-Paket gelegt, sondern bei Aktivierung
 geladen. Der Nachladedialog formuliert die Größe als Beweis, nicht als Kosten:

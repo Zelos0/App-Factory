@@ -53,6 +53,14 @@ jobs:
           CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           REPO: ${{ github.event.repository.name }}
         run: |
+          # main bekommt die echte Spracherkennung des Browsers; alle
+          # anderen Branches den Stub mit festen Sätzen — für die Prüfliste
+          # aus TESTLEITER.md, die reproduzierbare Ergebnisse braucht.
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            echo "stt=platform" >> "$GITHUB_OUTPUT"
+          else
+            echo "stt=web" >> "$GITHUB_OUTPUT"
+          fi
           if [ -n "$CF_TOKEN" ] && [ -n "$CF_ACCOUNT" ]; then
             echo "where=cloudflare" >> "$GITHUB_OUTPUT"
             echo "prefix=/" >> "$GITHUB_OUTPUT"
@@ -82,7 +90,7 @@ jobs:
             echo "::group::build $f"
             ( cd "apps/$f" && flutter build web --release --no-web-resources-cdn \
               --dart-define=FLAVOR="$f" \
-              --dart-define=STT_ENGINE=web \
+              --dart-define=STT_ENGINE=${{ steps.target.outputs.stt }} \
               --base-href="${{ steps.target.outputs.prefix }}$f/" \
               --output="$GITHUB_WORKSPACE/build/web/$f" )
             echo "::endgroup::"

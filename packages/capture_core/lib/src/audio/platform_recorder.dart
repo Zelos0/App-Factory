@@ -4,15 +4,37 @@ import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart' as r;
+import 'package:shared_base/shared_base.dart';
 import 'package:uuid/uuid.dart';
 
+import '../stt/stt_engine.dart';
 import 'recorder.dart';
 
 /// Aufnahme über das Mikrofon. Funktioniert auf Android, iOS und im Browser —
 /// im Browser über MediaRecorder, dort ist [RecordingResult.path] eine
 /// Blob-URL statt eines Dateipfads.
+///
+/// Ist eine [LiveSttEngine] registriert, hört sie automatisch mit: Start,
+/// Pause, Fortsetzen und Stopp der Aufnahme steuern auch die Erkennung. Die
+/// App merkt davon nichts — sie ruft wie immer `transcribe()` nach `stop()`.
 class PlatformAudioRecorder implements AudioRecorder {
-  PlatformAudioRecorder();
+  /// [live] nur für Tests. Ohne Angabe gilt die registrierte [SttEngine],
+  /// sofern sie mithören kann.
+  PlatformAudioRecorder({LiveSttEngine? live}) : _liveOverride = live;
+
+  final LiveSttEngine? _liveOverride;
+
+  LiveSttEngine? get _live {
+    final LiveSttEngine? own = _liveOverride;
+    if (own != null) {
+      return own;
+    }
+    if (!Registry.instance.has<SttEngine>()) {
+      return null;
+    }
+    final SttEngine e = Registry.instance.get<SttEngine>();
+    return e is LiveSttEngine ? e : null;
+  }
 
   final r.AudioRecorder _recorder = r.AudioRecorder();
   final StreamController<RecordingState> _state =
@@ -63,11 +85,13 @@ class PlatformAudioRecorder implements AudioRecorder {
     _accumulated = Duration.zero;
     _state.add(RecordingState.recording);
     _startAmplitudePolling();
+    await _live?.beginLive();
   }
 
   @override
   Future<void> pause() async {
     await _recorder.pause();
+    await _live?.endLive();
     _accumulated += DateTime.now().difference(_startedAt ?? DateTime.now());
     _ampTimer?.cancel();
     _state.add(RecordingState.paused);
@@ -79,12 +103,16 @@ class PlatformAudioRecorder implements AudioRecorder {
     _startedAt = DateTime.now();
     _state.add(RecordingState.recording);
     _startAmplitudePolling();
+    await _live?.beginLive(append: true);
   }
 
   @override
   Future<RecordingResult?> stop() async {
     _ampTimer?.cancel();
     _state.add(RecordingState.processing);
+    // Erst die Erkennung beenden — sie liefert ihr letztes Wort, solange das
+    // Mikrofon noch offen ist.
+    await _live?.endLive();
     final String? result = await _recorder.stop();
     final Duration total =
         _accumulated + DateTime.now().difference(_startedAt ?? DateTime.now());
@@ -99,6 +127,7 @@ class PlatformAudioRecorder implements AudioRecorder {
   @override
   Future<void> cancel() async {
     _ampTimer?.cancel();
+    await _live?.endLive();
     await _recorder.cancel();
     _state.add(RecordingState.idle);
   }

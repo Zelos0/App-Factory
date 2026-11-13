@@ -17,8 +17,9 @@ class Features {
   static const bool parakeetEnabled = false;
 
   /// Welche SttEngine registriert wird: 'web' | 'platform' | 'parakeet'.
-  /// Wird beim Web-Build durch die Plattformprüfung in registry.dart
-  /// ohnehin auf 'web' gezwungen.
+  /// 'web' ist der Stub mit Beispielsätzen. 'platform' hört am Mikrofon mit —
+  /// auf dem Gerät über Android/iOS, im Browser über die Web Speech API.
+  /// Die endgültige Auflösung macht resolveSttEngineId() in registry.dart.
   static const String sttEngine =
       String.fromEnvironment('STT_ENGINE', defaultValue: 'platform');
 

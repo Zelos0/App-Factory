@@ -44,7 +44,11 @@ class Registry {
 /// indem sie ihre Bindungen hier eintragen.
 String resolveSttEngineId() {
   if (kIsWeb) {
-    return 'web';
+    // Im Browser gibt es zwei Wege: den Stub mit festen Beispielsätzen
+    // (STT_ENGINE=web — Prüfliste, Integrationstest, Branch-Vorschauen) und
+    // die echte Web Speech API über die Plattform-Engine (alles andere).
+    // Parakeet läuft im Browser nie.
+    return Features.sttEngine == 'web' ? 'web' : 'platform';
   }
   if (Features.sttEngine == 'parakeet' && !Features.parakeetEnabled) {
     return 'platform';

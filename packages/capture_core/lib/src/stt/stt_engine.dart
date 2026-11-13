@@ -47,3 +47,21 @@ class SttFailure implements Exception {
   @override
   String toString() => 'SttFailure(${engine ?? "?"}): $message';
 }
+
+/// Engines, die am Mikrofon MITHÖREN, statt eine fertige Datei zu lesen —
+/// Android SpeechRecognizer, iOS Speech, im Browser die Web Speech API.
+///
+/// Apps rufen diese Methoden nie selbst auf. [PlatformAudioRecorder] startet
+/// die Erkennung mit der Aufnahme und beendet sie mit ihr; danach liefert
+/// [SttEngine.transcribe] das Mitgehörte. Für die App sieht der Ablauf damit
+/// genauso aus wie bei einer Datei-Engine: aufnehmen, stoppen, transcribe().
+abstract interface class LiveSttEngine implements SttEngine {
+  /// Beginnt mitzuhören. [append] hängt an das bisher Gehörte an (nach einer
+  /// Pause), statt neu zu beginnen. Wirft nie: Geht es nicht, merkt sich die
+  /// Engine den Grund und [SttEngine.transcribe] meldet ihn als [SttFailure].
+  /// Die Aufnahme selbst darf an der Erkennung niemals scheitern.
+  Future<void> beginLive({String lang, bool append});
+
+  /// Hört auf und wartet kurz auf das letzte Ergebnis. Wirft nie.
+  Future<void> endLive();
+}
