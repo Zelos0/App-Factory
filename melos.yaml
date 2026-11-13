@@ -37,3 +37,19 @@ scripts:
   check-ad-ids:
     description: Bricht, wenn eine echte AdMob-ID im Quelltext auftaucht.
     run: dart run tool/check_ad_ids.dart
+
+  integration:
+    description: >-
+      Hauptablauf im headless Chrome mit Store-Screenshots (1170×2532).
+      Braucht einen laufenden chromedriver auf Port 4444.
+      Aufruf-  dart run melos run integration -- vox
+    run: |
+      cd apps/$1 && flutter drive --profile --no-web-resources-cdn \
+        --driver=test_driver/integration_test.dart \
+        --target=integration_test/app_test.dart \
+        -d web-server --browser-name=chrome --headless \
+        --browser-dimension=390,987 \
+        --web-browser-flag=--force-device-scale-factor=3 \
+        --web-browser-flag=--use-fake-device-for-media-stream \
+        --web-browser-flag=--use-fake-ui-for-media-stream \
+        --dart-define=FLAVOR=$1 --dart-define=STT_ENGINE=web

@@ -53,3 +53,61 @@ jobs:
           path: "**/test/**/failures/**"
           if-no-files-found: ignore
           retention-days: 14
+
+  # Hauptablauf im echten Browser: aufnehmen, erweitern, suchen, Detail —
+  # mit Testmikrofon und Stub-Erkennung. Die Screenshots 01–06 sind die
+  # Store-Bilder (Artefakt screenshots-<flavor>), store-assets nimmt sie dort.
+  # test-loop-free Stufe 1. Die Matrix wächst mit jedem abgeleiteten Flavor.
+  screenshots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: analyze-and-test
+    strategy:
+      fail-fast: false
+      matrix:
+        flavor: [vox]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.24.5
+          cache: true
+
+      # Installiert den chromedriver, der zur Chrome-Version des Runners passt.
+      - uses: nanasess/setup-chromedriver@v2
+
+      - name: Melos und Bootstrap
+        run: dart pub get && dart run melos bootstrap
+
+      - name: chromedriver starten
+        run: chromedriver --port=4444 &
+
+      # --profile, nicht Debug: Im Debug-Modus wartet web-server auf die
+      # Dart-Debug-Erweiterung, die ein headless Chrome nie lädt — der Lauf
+      # hängt dann wortlos bis zum Timeout.
+      # --browser-dimension 390×987 ergibt nach Abzug des Fensterrahmens
+      # 390×844 — mit Faktor 3 genau 1170×2532, die iPhone-14-Auflösung.
+      - name: Integrationstest im Browser
+        working-directory: apps/${{ matrix.flavor }}
+        run: |
+          flutter drive --profile --no-web-resources-cdn \
+            --driver=test_driver/integration_test.dart \
+            --target=integration_test/app_test.dart \
+            -d web-server --browser-name=chrome --headless \
+            --browser-dimension=390,987 \
+            --web-browser-flag=--force-device-scale-factor=3 \
+            --web-browser-flag=--use-fake-device-for-media-stream \
+            --web-browser-flag=--use-fake-ui-for-media-stream \
+            --dart-define=FLAVOR=${{ matrix.flavor }} \
+            --dart-define=STT_ENGINE=web
+
+      - name: Screenshots als Artefakt ablegen
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots-${{ matrix.flavor }}
+          path: apps/${{ matrix.flavor }}/integration_test/screenshots
+          if-no-files-found: warn
+          retention-days: 14

@@ -37,7 +37,7 @@ apps/*/ios/Runner/GoogleService-Info.plist
 # Test-Ausgaben
 **/failures/
 coverage/
-integration_test/screenshots/
+**/integration_test/screenshots/
 
 # Sprachmodelle — niemals ins Repo, niemals ins App-Paket
 **/models/*.onnx

@@ -451,6 +451,34 @@ Future<void> _bild(IntegrationTestWidgetsFlutterBinding binding,
 }
 ```
 
+#### 1.1a — Erfahrung aus vox (13.11.2026): so läuft es wirklich
+
+Die Vorlage 1.1 läuft so NICHT durch. Vorbild ist
+`apps/vox/integration_test/app_test.dart`; die Unterschiede:
+
+- **`flutter drive --profile`**, nie Debug: Im Debug-Modus wartet
+  `web-server` auf die Dart-Debug-Erweiterung, die headless Chrome nie lädt.
+  Der Lauf hängt wortlos bis zum Timeout.
+- **`--no-web-resources-cdn`**: sonst CanvasKit von gstatic.com — ohne Netz
+  eine weiße Seite.
+- **`--browser-dimension=390,987`** plus
+  `--web-browser-flag=--force-device-scale-factor=3`: ergibt 1170×2532, die
+  iPhone-14-Auflösung. Ohne das sind die Store-Bilder 1600×881 Desktop.
+- **Mikrofon:** `--web-browser-flag=--use-fake-device-for-media-stream`
+  und `--use-fake-ui-for-media-stream`.
+- **Nie `pumpAndSettle`** — Wellenform und Ladekreisel „settlen" nie.
+  Eigener Helfer `_until(finder)`, der begrenzt pumpt.
+- **Auf das Ergebnis warten, nicht auf das erste Lebenszeichen:** Ein
+  Eintrag erscheint sofort, sein Text erst nach der Erkennung.
+- **`enterText` erreicht im Browser kein Feld** (echte Tastatur). Begriff
+  über `controller.text` setzen und `onChanged` auslösen.
+- **Im Profile-Modus sind Fehlermeldungen leer.** Bei Rot: vorübergehend
+  `_shot(binding, t, 'zz-…')` zwischen die Schritte, das letzte Bild zeigt
+  die Stelle.
+- Lokal: `chromedriver --port=4444 &`, dann
+  `dart run melos run integration -- <flavor>`. Der chromedriver muss zur
+  Chrome-Version passen; alte Chrome-Sitzungen vorher beenden.
+
 #### 1.2 — Der Treiber, der die PNG-Dateien schreibt
 
 Datei: `apps/<flavor>/test_driver/integration_test.dart`

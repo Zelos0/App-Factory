@@ -70,8 +70,12 @@ Alles unten ist im Browser automatisiert geprüft — aber mit einer
       der Skill-Vorlage. Sichtgeprüft. Neu erzeugen nur nach Sichtprüfung:
       `dart run melos run test-golden-update`.
 
-- [ ] **Integrationstest fehlt noch.** `integration_test/` ist angelegt,
-      der Hauptablauf kommt mit `test-loop-free` Stufe 1.
+- [x] **Integrationstest** (13.11.2026): `integration_test/app_test.dart`
+      fährt den Hauptablauf im echten Chrome — aufnehmen, erweitern (kein
+      zweiter Eintrag!), zweiter Eintrag, Suche, Detail mit zwei
+      abspielbaren Segmenten — und legt sechs Store-Bilder in
+      1170×2532 ab. Läuft in der CI als Job `screenshots`, Artefakt
+      `screenshots-vox`. Lokal: `dart run melos run integration -- vox`.
 
 ## Vom Steckbrief genannt, bewusst noch nicht gebaut
 
