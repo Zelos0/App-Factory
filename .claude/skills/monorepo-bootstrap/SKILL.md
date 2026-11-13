@@ -107,7 +107,7 @@ scripts:
   build-web:
     description: Web-Build eines Flavors. Aufruf-  melos run build-web -- vox
     run: |
-      flutter build web --release \
+      flutter build web --release --no-web-resources-cdn \
         --dart-define=FLAVOR=$1 \
         --dart-define=STT_ENGINE=web \
         --base-href=/$1/ \
@@ -785,7 +785,7 @@ jobs:
           IFS=',' read -ra F <<< "${{ steps.flavors.outputs.list }}"
           for f in "${F[@]}"; do
             echo "::group::build $f"
-            flutter build web --release \
+            flutter build web --release --no-web-resources-cdn \
               --dart-define=FLAVOR="$f" \
               --dart-define=STT_ENGINE=web \
               --base-href="/$f/" \
@@ -1210,7 +1210,7 @@ Danach der Nachweis, dass Tag 1 sein Ziel erreicht — ein Web-Build, der sich
 
 ```bash
 cd apps/vox
-flutter build web --release \
+flutter build web --release --no-web-resources-cdn \
   --dart-define=FLAVOR=vox \
   --dart-define=STT_ENGINE=web \
   --base-href=/vox/ \

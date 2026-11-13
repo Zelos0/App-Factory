@@ -66,7 +66,7 @@ der Cloudflare-Oberfläche:
 
 | Feld | Wert |
 |---|---|
-| Build-Befehl | `flutter build web --release --dart-define=FLAVOR=vox --dart-define=STT_ENGINE=web --base-href=/vox/ --output=build/web/vox` |
+| Build-Befehl | `flutter build web --release --no-web-resources-cdn --dart-define=FLAVOR=vox --dart-define=STT_ENGINE=web --base-href=/vox/ --output=build/web/vox` |
 | Ausgabeverzeichnis | `build/web` (je Flavor ein Unterordner) |
 | Deploy-Schritt | `cloudflare/wrangler-action` mit `command: pages deploy build/web --project-name=app-fabrik --branch=<ref>` |
 

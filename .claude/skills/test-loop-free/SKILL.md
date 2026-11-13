@@ -527,7 +527,7 @@ In `web.yml` hinter der Flavor-Schleife einen zweiten Build ergänzen:
         run: |
           IFS=',' read -ra F <<< "${{ steps.flavors.outputs.list }}"
           for f in "${F[@]}"; do
-            flutter build web --release \
+            flutter build web --release --no-web-resources-cdn \
               --dart-define=FLAVOR="$f" \
               --dart-define=STT_ENGINE=web \
               --dart-define=STUB_FAILURE=1 \

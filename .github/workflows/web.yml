@@ -1,8 +1,21 @@
 name: web
 
+# Baut alle Flavors für den Browser und veröffentlicht sie.
+#
+# Ziel 1 — Cloudflare Pages, sobald CLOUDFLARE_API_TOKEN und
+#          CLOUDFLARE_ACCOUNT_ID als Secrets hinterlegt sind. Jeder Branch
+#          bekommt dort eine eigene Vorschau-URL.
+# Ziel 2 — GitHub Pages, solange Cloudflare fehlt. Nur der Stand von main,
+#          unter https://<nutzer>.github.io/<repo>/. Kostenlos, weil das
+#          Repo öffentlich ist; keine Einrichtung nötig: der erste Lauf legt
+#          den Branch gh-pages an, GitHub schaltet Pages darauf ein.
+#
+# Fehlt beides, bleibt der Lauf grün und legt den Build als Artefakt ab.
+
 on:
   push:
     branches: ["**"]
+  workflow_dispatch:
 
 concurrency:
   group: web-${{ github.ref }}
@@ -13,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     permissions:
-      contents: read
+      contents: write # gh-pages-Branch schreiben
       deployments: write
     steps:
       - uses: actions/checkout@v4
@@ -33,6 +46,27 @@ jobs:
       - name: Bootstrap
         run: dart run melos bootstrap
 
+      - name: Ziel bestimmen
+        id: target
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          REPO: ${{ github.event.repository.name }}
+        run: |
+          if [ -n "$CF_TOKEN" ] && [ -n "$CF_ACCOUNT" ]; then
+            echo "where=cloudflare" >> "$GITHUB_OUTPUT"
+            echo "prefix=/" >> "$GITHUB_OUTPUT"
+            echo "Ziel: Cloudflare Pages"
+          elif [ "${{ github.ref_name }}" = "main" ]; then
+            echo "where=ghpages" >> "$GITHUB_OUTPUT"
+            echo "prefix=/$REPO/" >> "$GITHUB_OUTPUT"
+            echo "Ziel: GitHub Pages unter /$REPO/"
+          else
+            echo "where=none" >> "$GITHUB_OUTPUT"
+            echo "prefix=/$REPO/" >> "$GITHUB_OUTPUT"
+            echo "Kein Deploy für diesen Branch — Build landet als Artefakt."
+          fi
+
       - name: Flavors aus tool/flavors.yaml ermitteln
         id: flavors
         run: |
@@ -46,10 +80,10 @@ jobs:
           IFS=',' read -ra F <<< "${{ steps.flavors.outputs.list }}"
           for f in "${F[@]}"; do
             echo "::group::build $f"
-            ( cd "apps/$f" && flutter build web --release \
+            ( cd "apps/$f" && flutter build web --release --no-web-resources-cdn \
               --dart-define=FLAVOR="$f" \
               --dart-define=STT_ENGINE=web \
-              --base-href="/$f/" \
+              --base-href="${{ steps.target.outputs.prefix }}$f/" \
               --output="$GITHUB_WORKSPACE/build/web/$f" )
             echo "::endgroup::"
           done
@@ -57,21 +91,8 @@ jobs:
       - name: Übersichtsseite erzeugen
         run: dart run tool/gen_web_index.dart
 
-      - name: Cloudflare-Zugang vorhanden?
-        id: cf
-        env:
-          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: |
-          if [ -n "$CF_TOKEN" ] && [ -n "$CF_ACCOUNT" ]; then
-            echo "ready=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "ready=false" >> "$GITHUB_OUTPUT"
-            echo "Cloudflare-Secrets fehlen — Deploy wird übersprungen, Build bleibt grün."
-          fi
-
       - name: Deploy zu Cloudflare Pages
-        if: steps.cf.outputs.ready == 'true'
+        if: steps.target.outputs.where == 'cloudflare'
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -81,9 +102,26 @@ jobs:
             --project-name=app-fabrik
             --branch=${{ github.ref_name }}
 
+      - name: Deploy zu GitHub Pages
+        if: steps.target.outputs.where == 'ghpages'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: build/web
+          publish_branch: gh-pages
+          force_orphan: true
+          commit_message: "web: ${{ github.sha }}"
+
+      - name: Adresse ausgeben
+        if: steps.target.outputs.where == 'ghpages'
+        run: |
+          url="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+          echo "### Web-Demo: $url" >> "$GITHUB_STEP_SUMMARY"
+          echo "Web-Demo: $url"
+
       - name: Web-Build als Artefakt ablegen
         uses: actions/upload-artifact@v4
         with:
-          name: web-${{ github.ref_name }}
+          name: web-${{ github.sha }}
           path: build/web
           retention-days: 7

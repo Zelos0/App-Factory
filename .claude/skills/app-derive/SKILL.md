@@ -216,6 +216,13 @@ dev_dependencies:
     sdk: flutter
   integration_test:
     sdk: flutter
+
+flutter:
+  # PFLICHT. Ohne diese Zeile liefert der Build die Icon-Schrift nicht mit:
+  # FontManifest.json bleibt leer, jedes Icons.* erscheint im Browser und auf
+  # dem Gerät als leeres Kästchen. Tests und Analyse merken davon nichts —
+  # nur die Sichtprüfung. Gefunden an vox, 13.11.2026.
+  uses-material-design: true
 ```
 
 Nicht benötigte Kern-Abhängigkeit wird gelöscht, nicht auskommentiert.
@@ -1142,7 +1149,7 @@ test "$MIN" -le 120 || echo "ÜBER ZIELZEIT — siehe Abbruchkriterium 1."
 melos bootstrap
 melos run analyze
 melos exec --scope=<flavor> -- flutter test
-flutter build web --release --dart-define=FLAVOR=<flavor> \
+flutter build web --release --no-web-resources-cdn --dart-define=FLAVOR=<flavor> \
   --dart-define=STT_ENGINE=web --base-href=/<flavor>/ \
   --output=build/web/<flavor>
 git add -A

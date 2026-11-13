@@ -21,3 +21,8 @@ dev_dependencies:
     sdk: flutter
   integration_test:
     sdk: flutter
+
+flutter:
+  # Pflicht — ohne diese Zeile fehlt die Icon-Schrift im Build und jedes
+  # Icon erscheint als leeres Kästchen. Siehe app-derive Schritt 3.
+  uses-material-design: true

@@ -28,7 +28,7 @@ scripts:
   build-web:
     description: Web-Build eines Flavors. Aufruf-  melos run build-web -- vox
     run: |
-      flutter build web --release \
+      flutter build web --release --no-web-resources-cdn \
         --dart-define=FLAVOR=$1 \
         --dart-define=STT_ENGINE=web \
         --base-href=/$1/ \
