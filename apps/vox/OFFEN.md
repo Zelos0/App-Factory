@@ -57,10 +57,11 @@ Alles unten ist im Browser automatisiert geprüft — aber mit einer
       was der Browser kann. (AAC ließ sich hier nicht prüfen — Chromium kann
       kein AAC aufnehmen; der WAV-Rückfall ist geprüft.)
 
-- [ ] **Überschriftenschrift „Serif" ist nicht eingebunden.**
-      `VoxTheme.headlineFamily = 'Serif'` verweist auf keine Schrift im
-      Build; Flutter fällt still auf die Standardschrift zurück. Entweder
-      eine Serifenschrift (OFL) mitliefern oder die Zeile streichen.
+- [x] **Überschriften in schmaler Serifenschrift** (13.11.2026), wie der
+      Steckbrief verlangt: Crimson Pro (SIL OFL 1.1) liegt unter
+      `apps/vox/assets/fonts/`. Vorher stand im Theme 'Serif' — eine Schrift
+      dieses Namens gibt es nicht, Flutter fiel still auf die Standardschrift
+      zurück. Titelgrößen um 2 pt angehoben (kleinere x-Höhe).
 
 - [ ] **Golden-Tests fehlen noch.** Sechs Bilder (Start, Liste, Detail — je
       hell und dunkel) gehören zu Tag 5. `app-derive` legt nur das

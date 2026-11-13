@@ -20,7 +20,13 @@ class VoxTheme {
   /// Graphit — Text und Akzent.
   static const Color accent = Color(0xFF1C1917);
 
-  static const String headlineFamily = 'Serif';
+  /// Schmale Serifenschrift für Überschriften — mitgeliefert, siehe
+  /// pubspec.yaml. Vorher stand hier 'Serif': eine Schrift dieses Namens
+  /// gibt es nicht, Flutter fiel still auf die Standardschrift zurück.
+  static const String headlineFamily = 'CrimsonPro';
+
+  /// Neutrale Grotesk für Fließtext. Roboto bringt Flutter selbst mit
+  /// (Android, Web); iOS setzt die Systemschrift ein.
   static const String bodyFamily = 'Roboto';
 
   /// Zeilenabstand für Transkripte. Steht im Steckbrief, nicht im Ermessen.
@@ -71,8 +77,16 @@ class VoxTheme {
         headlineMedium:
             base.headlineMedium?.copyWith(fontFamily: headlineFamily),
         headlineSmall: base.headlineSmall?.copyWith(fontFamily: headlineFamily),
-        titleLarge: base.titleLarge?.copyWith(fontFamily: headlineFamily),
-        titleMedium: base.titleMedium?.copyWith(fontFamily: headlineFamily),
+        // Crimson Pro hat eine kleinere x-Höhe als Roboto; bei gleicher
+        // Punktgröße wirken Listentitel sonst gedrungen. +2 gleicht das aus.
+        titleLarge: base.titleLarge?.copyWith(
+          fontFamily: headlineFamily,
+          fontSize: (base.titleLarge?.fontSize ?? 22) + 2,
+        ),
+        titleMedium: base.titleMedium?.copyWith(
+          fontFamily: headlineFamily,
+          fontSize: (base.titleMedium?.fontSize ?? 16) + 2,
+        ),
         bodyLarge: base.bodyLarge?.copyWith(
           fontFamily: bodyFamily,
           height: transcriptHeight,

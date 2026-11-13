@@ -26,3 +26,13 @@ flutter:
   # Pflicht — ohne diese Zeile fehlt die Icon-Schrift im Build und jedes
   # Icon erscheint als leeres Kästchen. Siehe app-derive Schritt 3.
   uses-material-design: true
+
+  # Steckbrief: „Überschriften in einer schmalen Serifenschrift".
+  # Crimson Pro, SIL OFL 1.1 — Lizenz liegt daneben (CrimsonPro-OFL.txt).
+  # Mitgeliefert statt von Google Fonts geladen: kein Netz, kein Tracking.
+  fonts:
+    - family: CrimsonPro
+      fonts:
+        - asset: assets/fonts/CrimsonPro-Regular.ttf
+        - asset: assets/fonts/CrimsonPro-Bold.ttf
+          weight: 700
